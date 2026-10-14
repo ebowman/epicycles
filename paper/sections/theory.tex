@@ -1,4 +1,438 @@
 \section{Theory}
 \label{sec:theory}
-% TODO: closed-form 3D geocentric Bessel epicycle expansion, ellipse as two counter-rotating circles, truncation bounds, Bohr almost-periodicity
-\todo{closed-form 3D geocentric Bessel epicycle expansion, ellipse as two counter-rotating circles, truncation bounds, Bohr almost-periodicity.}
+
+This section derives the geocentric epicycle expansion of a Newtonian
+orbit. We keep the classical background (Subsecs.~\ref{sec:th-kepler} and
+\ref{sec:th-conv}) separate from the material we believe to be our
+contribution: the assembly of vector terms into counter-rotating circles in
+three dimensions (Subsec.~\ref{sec:th-3d}), the geocentric chain
+(Subsec.~\ref{sec:th-geo}), the explicit truncation bounds
+(Subsec.~\ref{sec:th-trunc}), and an explicit delimitation of where the
+representation holds for perturbed motion (Subsec.~\ref{sec:th-pert}), whose
+substance is classical. The identification of the leading terms with the
+Ptolemaic deferent, epicycle and equant (Subsec.~\ref{sec:th-ptolemy}) is
+known and is included for completeness. Throughout, $a$ and $e$ are the
+semi-major axis and eccentricity of a Keplerian orbit, $s\equiv\sqrt{1-e^2}$,
+$M=n(t-t_p)$ is the mean anomaly, $E$ the eccentric anomaly with
+$M=E-e\sin E$, and $z=x+\ii y$ is the position in the perifocal plane
+($x$ toward periapsis, origin at the focus). Orientation is given by the
+rotation $\mathsf R=\mathsf R_z(\Omega)\mathsf R_x(i)\mathsf R_z(\omega)$.
+
+\subsection{Kepler motion as a Fourier series in the mean anomaly}
+\label{sec:th-kepler}
+
+\emph{Classical background \cite{Dutka1995,Watson1944,MurrayDermott1999,BrouwerClemence1961};
+re-derived here to fix notation.}
+In the perifocal frame,
+\begin{equation}
+x=a(\cos E-e),\qquad y=as\sin E .
+\label{eq:perifocal}
+\end{equation}
+For $0\le e<1$ the map $M\mapsto E$ is a smooth increasing bijection of the
+circle, so $z(M)$ is real-analytic and $2\pi$-periodic in $M$ and has a
+uniformly convergent Fourier series. Writing the trigonometric functions of
+$E$ as exponentials,
+\begin{equation}
+\frac za=-e+\frac{1+s}{2}\,e^{\ii E}+\frac{1-s}{2}\,e^{-\ii E},
+\label{eq:ellipseE}
+\end{equation}
+a prograde circle of radius $(1+s)/2$, a retrograde one of radius $(1-s)/2$,
+and an offset, all in the \emph{eccentric} anomaly. What remains is to
+re-expand $e^{\pm\ii E}$ in the uniform variable $M$.
+
+\begin{lemma}[Bessel \cite{Dutka1995}, Watson \cite{Watson1944}, ch.~17]
+\label{lem:coef}
+For integers $m\ne0$ and $k\ne0$,
+\begin{equation}
+\frac1{2\pi}\int_0^{2\pi}e^{\ii mE}e^{-\ii kM}\,dM=\frac mk\,J_{k-m}(ke).
+\label{eq:lemma}
+\end{equation}
+\end{lemma}
+\begin{proof}
+Integrate by parts in $M$ (the boundary term vanishes by periodicity),
+change variable to $E$ using $M=E-e\sin E$, and use Bessel's integral
+$J_n(x)=\frac1{2\pi}\int_0^{2\pi}e^{\ii(n\tau-x\sin\tau)}d\tau$ (see
+Appendix~\ref{app:bessel}).
+\end{proof}
+
+Applying Lemma~\ref{lem:coef} to Eq.~\eqref{eq:ellipseE} with $m=\pm1$ gives
+the following.
+
+\begin{proposition}[Fourier--Bessel series of Kepler motion]
+\label{prop:series}
+$z=a\sum_{k\in\mathbb Z}c_ke^{\ii kM}$ with all $c_k$ real, where for
+$k\ge1$
+\begin{align}
+c_k&=\frac{(1+s)J_{k-1}(ke)-(1-s)J_{k+1}(ke)}{2k}\notag\\
+&=\frac1k\Big[\frac{1+s}{e}J_k(ke)-J_{k+1}(ke)\Big],\label{eq:ck}\\
+c_{-k}&=\frac{(1-s)J_{k-1}(ke)-(1+s)J_{k+1}(ke)}{2k}\notag\\
+&=\frac1k\Big[\frac{1-s}{e}J_k(ke)-J_{k+1}(ke)\Big],\label{eq:cmk}
+\end{align}
+and $c_0=-\tfrac32 e$. Equivalently, in real form,
+\begin{align}
+\frac xa&=-\frac{3e}{2}+\sum_{k\ge1}\frac2kJ_k'(ke)\cos kM,\notag\\
+\frac ya&=\frac{2s}{e}\sum_{k\ge1}\frac1kJ_k(ke)\sin kM,
+\label{eq:realform}
+\end{align}
+that is, $c_k+c_{-k}=\tfrac2kJ_k'(ke)$ and $c_k-c_{-k}=\tfrac{2s}{ke}J_k(ke)$.
+\end{proposition}
+
+The second forms in Eqs.~\eqref{eq:ck} and \eqref{eq:cmk} follow from the
+recurrences $J_{k-1}+J_{k+1}=2kJ_k/x$ and $J_{k-1}-J_{k+1}=2J_k'$ and
+the relation $J_k'(x)=kJ_k(x)/x-J_{k+1}(x)$ (Appendix~\ref{app:bessel}).
+The offset follows from averaging Eq.~\eqref{eq:ellipseE} over $M$ with
+$dM=(1-e\cos E)\,dE$: $\langle\cos E\rangle_M=-e/2$ and
+$\langle\sin E\rangle_M=0$.
+
+\paragraph*{The limit $e\to0$.}
+The factors $s/e$ and $(1\pm s)/e$ in Eqs.~\eqref{eq:ck}--\eqref{eq:realform}
+are singular at $e=0$ term by term, but the coefficients are not: since
+$J_k(ke)=O(e^k)$, one has $J_k(ke)/e\to\tfrac12\delta_{k1}$, so all
+$c_k$ stay finite and tend to $c_1=1$, $c_{-1}=0$, and $c_k=0$ for all other
+$k$. The case $e=0$ is therefore the single circle $z=ae^{\ii M}$. For small
+$e$,
+\begin{gather}
+c_0=-\tfrac32e,\quad c_1=1-\tfrac12e^2+\dots,\quad c_2=\tfrac12e+\dots,\notag\\
+c_{-1}=\tfrac18e^2+\dots,\quad c_{-2}=\tfrac1{24}e^3+\dots,
+\label{eq:smalle}
+\end{gather}
+so $z/a\approx-\tfrac32e+e^{\ii M}+\tfrac e2e^{2\ii M}$ to first order in $e$.
+(Appendix~\ref{app:bessel} gives the general small-$e$ behaviour.)
+
+\paragraph*{One term is one epicycle.}
+With $M=n(t-t_p)$, the term $ac_ke^{\ii kM}$ is a uniform circular motion of
+radius $a|c_k|$, angular rate $kn$ (counter-clockwise for $k>0$, clockwise
+for $k<0$) and phase $\arg c_k\in\{0,\pi\}$. The $k=0$ term is a fixed
+displacement $-\tfrac32ea$ along the apsidal line of the centre of all the
+circles.
+
+\subsection{Convergence and the Kapteyn bound}
+\label{sec:th-conv}
+
+\emph{Classical \cite{Kapteyn1893,Watson1944}, with the corollaries for
+$c_k$ spelled out.} Kapteyn's inequality states that for $0<\zeta\le1$ and
+$\nu\ge0$, $|J_\nu(\nu\zeta)|\le\big(\zeta e^{\sqrt{1-\zeta^2}}/(1+\sqrt{1-\zeta^2})\big)^\nu$
+(Appendix~\ref{app:bessel}). With $\zeta=e$:
+\begin{equation}
+|J_k(ke)|\le\rho(e)^k,\qquad
+\rho(e)=\frac{e\,e^{s}}{1+s}<1\quad(0\le e<1).
+\label{eq:kapteyn}
+\end{equation}
+The function $\rho$ increases from $\rho(0)=0$ to $\rho(1)=1$, and near
+$e=1$, with $\delta=1-e$, $\ln\rho\approx-(2\delta)^{3/2}/3$.
+
+\begin{proposition}[Coefficient decay and convergence]
+\label{prop:conv}
+For $k\ge1$ and $0<e<1$,
+\begin{gather}
+|c_k|\le\frac{\rho^k}{k}\Big[\frac{1+s}{e}+\rho\Big],\quad
+|c_{-k}|\le\frac{\rho^k}{k}\Big[\frac{1-s}{e}+\rho\Big],\notag\\
+|c_k|+|c_{-k}|\le\frac{2\rho^k}{k}\Big[\frac1e+\rho\Big].
+\label{eq:ckbound}
+\end{gather}
+Hence $\sum_k|c_k|<\infty$ and the series of Prop.~\ref{prop:series}
+converges absolutely and uniformly in $M$ for every $0\le e<1$.
+\end{proposition}
+\begin{proof}
+Because $\rho$ is increasing, $|J_{k+1}(ke)|=|J_{k+1}((k+1)\tfrac{ke}{k+1})|
+\le\rho(\tfrac{ke}{k+1})^{k+1}\le\rho(e)^{k+1}$. Insert this and
+Eq.~\eqref{eq:kapteyn} in the derivative-free forms of Eqs.~\eqref{eq:ck},
+\eqref{eq:cmk}. Uniform convergence follows by the Weierstrass M-test since
+$\rho<1$.
+\end{proof}
+
+The Laplace limit $e\approx0.6627$ is sometimes quoted as a bound on
+the convergence of such expansions. It is the radius of convergence of the
+Lagrange power series of $E(M;e)$ in powers of $e$ at fixed $M$: continued
+to complex $e$, $E(M;e)$ has branch points, located where
+$1-e\cos E=0$ at complex $E$, the nearest of which lies at $|e|=0.6627$, and
+a power series cannot converge beyond the nearest singularity. It does not
+limit the Fourier series in $M$ at fixed real $e$, whose coefficients decay
+geometrically at rate $\rho(e)<1$ for \emph{all} $e<1$
+(Prop.~\ref{prop:conv}). The two expansions order the terms differently
+(powers of $e$ versus harmonics of $M$); re-expanding $c_k(e)$ in $e$ recovers
+the Lagrange series, which then inherits the Laplace limit
+\cite{Dutka1997,Colwell1993}.
+
+\subsection{Three dimensions: each vector term as two counter-rotating circles}
+\label{sec:th-3d}
+
+Let $\mathbf P,\mathbf Q,\mathbf N$ be the columns of $\mathsf R$:
+the periapsis direction, the in-plane quadrature direction and the orbit
+normal, an orthonormal right-handed triad ($\mathbf P\times\mathbf Q=\mathbf N$).
+Then $\mathbf r=x\mathbf P+y\mathbf Q=\mathrm{Re}\big[z(\mathbf P-\ii\mathbf Q)\big]$
+and, using that the $c_k$ are real,
+\begin{gather}
+\mathbf r(M)=a\,c_0\,\mathbf P+\sum_{k\ge1}\mathrm{Re}\big(\mathbf A_ke^{\ii kM}\big),\notag\\
+\mathbf A_k=a\big[c_k(\mathbf P-\ii\mathbf Q)+c_{-k}(\mathbf P+\ii\mathbf Q)\big]\in\mathbb C^3 .
+\label{eq:vecterm}
+\end{gather}
+Equivalently $\mathbf A_k=a[\alpha_k\mathbf P-\ii\beta_k\mathbf Q]$ with
+$\alpha_k=c_k+c_{-k}$ and $\beta_k=c_k-c_{-k}$, so each harmonic is an ellipse
+centred at the origin, with semi-axes $a|\alpha_k|$ along $\mathbf P$ and
+$a|\beta_k|$ along $\mathbf Q$, traversed at rate $kn$ in the plane
+orthogonal to $\mathbf N$.
+
+\begin{proposition}[Two counter-rotating circles per harmonic]
+\label{prop:twocircles}
+With $\phi_{\pm k}=\arg c_{\pm k}\in\{0,\pi\}$,
+\begin{multline}
+\mathrm{Re}\big(\mathbf A_ke^{\ii kM}\big)=
+\underbrace{a|c_k|\big[\cos(kM+\phi_k)\mathbf P+\sin(kM+\phi_k)\mathbf Q\big]}_{\text{prograde, }+kn}\\
++\underbrace{a|c_{-k}|\big[\cos(kM-\phi_{-k})\mathbf P-\sin(kM-\phi_{-k})\mathbf Q\big]}_{\text{retrograde, }-kn}.
+\label{eq:twocircles}
+\end{multline}
+The ellipse has semi-major axis $a(|c_k|+|c_{-k}|)$ and semi-minor axis
+$a\,\big||c_k|-|c_{-k}|\big|$, and is a circle iff $c_{-k}=0$.
+\end{proposition}
+\begin{proof}
+Expand $\mathrm{Re}[c_ke^{\ii kM}(\mathbf P-\ii\mathbf Q)]$ and
+$\mathrm{Re}[c_{-k}e^{\ii kM}(\mathbf P+\ii\mathbf Q)]$ using
+$c_{\pm k}=\pm|c_{\pm k}|$ (i.e.\ $e^{\ii\phi}=\pm1$); the sum of a circle of
+radius $r_+$ at rate $+\omega$ and one of radius $r_-$ at rate $-\omega$
+is an ellipse with semi-axes $r_++r_-$ and $|r_+-r_-|$.
+\end{proof}
+
+For a single Kepler body all circles lie in the same orbital plane, so
+Prop.~\ref{prop:twocircles} is the planar statement of the previous
+subsections written in the basis $\mathbf P,\mathbf Q$. Inclination matters
+once two orbital planes are combined (next subsection): the body's circles
+lie in the plane with normal $\mathbf N_b$ and the Earth's in the plane with
+normal $\mathbf N_\oplus$, which gives ecliptic latitude with no additional
+machinery. In this form the construction requires no small parameter in the
+inclination.
+
+\subsection{The geocentric chain}
+\label{sec:th-geo}
+
+Let $\rgeo=\mathbf r_b-\mathbf r_\oplus$ with $M_b=n_b(t-t_b)$ and
+$M_\oplus=n_\oplus(t-t_\oplus)$; the perihelion times are absorbed into the
+phases of the amplitudes. By Eq.~\eqref{eq:vecterm},
+\begin{multline}
+\rgeo(t)=\underbrace{a_bc_0^{(b)}\mathbf P_b-a_\oplus c_0^{(\oplus)}\mathbf P_\oplus}_{\text{constant offset}}
++\sum_{k\ge1}\mathrm{Re}\big(\mathbf A^{(b)}_ke^{\ii kn_bt}\big)\\
+-\sum_{j\ge1}\mathrm{Re}\big(\mathbf A^{(\oplus)}_je^{\ii jn_\oplus t}\big).
+\label{eq:geo}
+\end{multline}
+
+\begin{proposition}[Geocentric epicycle chain]
+\label{prop:geo}
+(i) The Cartesian spectrum of $\rgeo$ is exactly the union of the two harmonic
+ladders $\{kn_b\}\cup\{jn_\oplus\}$; there are no combination frequencies
+$kn_b\pm jn_\oplus$ in the Cartesian vector (they appear only in nonlinear
+functions of it such as ecliptic longitude, distance or angular rate).
+(ii) Eq.~\eqref{eq:geo} is a uniformly and absolutely convergent trigonometric
+series with two base frequencies, i.e.\ a Bohr almost-periodic function
+\cite{Bohr1925} with frequency module $\mathbb Zn_b+\mathbb Zn_\oplus$. If
+$n_b/n_\oplus$ is irrational, $\rgeo$ is not periodic and has no Fourier series
+in a single period.
+(iii) If $n_b/n_\oplus=p/q$ with $p,q$ coprime positive integers, then
+$n_b=p\nu$ and $n_\oplus=q\nu$ with $\nu=n_b/p=n_\oplus/q$, all frequencies
+are integer multiples of $\nu$, and $\rgeo$ is periodic with period
+\begin{equation}
+T=\frac{2\pi}{\nu}=\frac{2\pi p}{n_b}=\frac{2\pi q}{n_\oplus},
+\label{eq:period}
+\end{equation}
+which is the minimal period whenever the $k=1$ terms of both bodies are
+nonzero (then $p\nu$ and $q\nu$ are both present and $\gcd(p,q)=1$).
+\end{proposition}
+\begin{proof}
+(i) is linearity of the difference. (ii) follows from Eq.~\eqref{eq:ckbound},
+which makes both ladders absolutely summable. (iii) is the arithmetic
+above; note that $2\pi q/n_b=(q/p)T$ is a period only when $p=1$.
+\end{proof}
+
+For Mars, $n_b/n_\oplus\approx0.5317$ (mean elements), and the synodic period
+is a derived quantity of the lattice, not an exact period. Generic
+(irrational) frequency ratios give motion on a two-torus
+\cite{Gallavotti2001}.
+
+\subsection{The leading Ptolemaic elements}
+\label{sec:th-ptolemy}
+
+Keep only $k=1$ for both bodies, neglect $e$ ($c_1\to1$, $c_0,c_{-1}\to0$) and
+work in the ecliptic plane with complex notation:
+\begin{equation}
+z_{\rm geo}\approx a_be^{\ii\theta_b}-a_\oplus e^{\ii\theta_\oplus},\qquad
+\theta=nt+\mathrm{const}.
+\label{eq:ptol1}
+\end{equation}
+For an \emph{outer} planet the deferent is the body's $k=1$ circle (radius
+$a_b$, period $2\pi/n_b$) and the epicycle is the Earth's $k=1$ term (radius
+$a_\oplus$, period one year); the epicycle-to-deferent ratio is
+$a_\oplus/a_b$, e.g.\ $0.656$ for Mars. The vector from the epicycle centre to
+the planet is $-\mathbf r_\oplus$, hence always parallel to the Earth-to-Sun
+direction: the classical rule that the epicycle radius stays parallel to the
+mean-Sun line \cite{Neugebauer1975,Evans1998}. For an \emph{inner} planet the
+roles swap: the deferent is the Sun's geocentric circle $-a_\oplus
+e^{\ii\theta_\oplus}$ and the epicycle is the planet's own circle, with ratio
+$a_b/a_\oplus$ (e.g.\ $0.723$ for Venus). Which circle is called the deferent
+is the commutativity of the sum~\eqref{eq:ptol1}, the algebraic content of
+Apollonius's equivalence \cite{Neugebauer1975,Evans1998}. (We do not compare
+with Ptolemy's own numerical parameters.)
+
+Including the first-order eccentricity terms, $z/a\approx-\tfrac32e+e^{\ii M}
++\tfrac e2e^{2\ii M}$ by Eq.~\eqref{eq:smalle}. For the equant, place the central body at
+$O=0$, the deferent centre at $C=-ea$ and the equant point at $Q=-2ea$
+(so $C$ bisects $OQ$). A point on the deferent circle of radius $a$ about
+$C$, whose direction from $Q$ advances uniformly at angle $M$, is
+$P=Q+\varrho e^{\ii M}$ with $\varrho\approx a+\mathrm{Re}(\bar d e^{\ii M})$,
+$d=C-Q=ea$, so
+\begin{multline}
+P-O\approx-2ea+ae^{\ii M}+\tfrac{ea}{2}\big(e^{2\ii M}+1\big)\\
+=a\Big[-\tfrac{3e}{2}+e^{\ii M}+\tfrac e2e^{2\ii M}\Big]+O(e^2).
+\label{eq:equant}
+\end{multline}
+
+\begin{proposition}[Ptolemaic models at leading order]
+\label{prop:ptol}
+The circular deferent--epicycle model is the $k=1$ truncation of
+Eq.~\eqref{eq:geo} at $e=0$. The eccentric-plus-equant model with bisected
+eccentricity reproduces the $k=0,1,2$ terms of the Kepler series to first
+order in $e$, so that its error is $O(e^2)$: the missing pieces are
+$c_{-1}=O(e^2)$, $c_{-2}=O(e^3)$ and the $O(e^2)$ corrections to $c_1,c_2$.
+\end{proposition}
+
+That the equant and bisected eccentricity capture Kepler's equation to
+$O(e)$ is known \cite{Evans1984,Evans1988,CarmanRecio2019,Rushkin2015}. The equant model
+is a different parametrisation of the same three leading terms and is not
+itself a finite harmonic-lattice expansion.
+
+\subsection{Truncation error}
+\label{sec:th-trunc}
+
+Let $z_N=a\sum_{|k|\le N}c_ke^{\ii kM}$ ($2N$ circles plus the offset).
+
+\begin{theorem}[Uniform truncation bound]
+\label{thm:trunc}
+For $0<e<1$,
+\begin{multline}
+\sup_t|z-z_N|\le a\sum_{k>N}(|c_k|+|c_{-k}|)\\
+\le\varepsilon_N(a,e)\equiv
+a\,\frac{2(1/e+\rho)\,\rho^{N+1}}{(N+1)(1-\rho)} .
+\label{eq:eps}
+\end{multline}
+Since $z(M)$ is exactly $2\pi$-periodic in $M$, the supremum over $M$ equals
+that over all $t$: the bound holds uniformly for all time for an unperturbed
+bound orbit. For the geocentric chain, keeping $|k|\le N_b$ for the body and
+$|k|\le N_\oplus$ for the Earth,
+\begin{multline}
+\sup_t|\rgeo-\rgeo^{(N)}|\\\le\varepsilon_{N_b}(a_b,e_b)+\varepsilon_{N_\oplus}(a_\oplus,e_\oplus).
+\label{eq:epsgeo}
+\end{multline}
+\end{theorem}
+\begin{proof}[Proof sketch]
+The first inequality is the triangle inequality. The second applies
+Eq.~\eqref{eq:ckbound} and $\sum_{k>N}\rho^k/k\le\frac1{N+1}\sum_{k>N}\rho^k
+=\rho^{N+1}/[(N+1)(1-\rho)]$. For Eq.~\eqref{eq:epsgeo}, $\mathsf R$ is an
+isometry, so the Cartesian errors of the body and the Earth add by the
+triangle inequality.
+\end{proof}
+
+As $e\to0$ the bound is $O(\rho^{N+1}/e)\to0$ for $N\ge1$ (with
+$\varepsilon_0=a$ at $e=0$, the dropped circle). The number of harmonics
+needed for tolerance $\mathrm{tol}$ scales as
+$N_{\min}\sim\ln(1/\mathrm{tol})/\ln(1/\rho)$ up to logarithmic factors, and
+near $e\to1$ as $N\propto(1-e)^{-3/2}$, so high eccentricity is costly.
+Table~\ref{tab:nneeded} compares the bound with the smallest $N$ actually
+needed (true $\sup_M|z-z_N|/a$ on a $3001$-point grid on $[0,\pi]$, the error
+being symmetric under $M\to-M$); the bound overestimates $N$ by at most a
+factor of about $1.5$ in this range, and was checked to hold for every $N$
+from $0$ to $800$ (to $6000$ for $e=0.89$).
+
+\begin{table}[tb]
+\caption{Harmonics $N$ needed for $\sup_M|z-z_N|/a<\mathrm{tol}$: observed,
+and from the bound~\eqref{eq:eps}.}
+\label{tab:nneeded}
+\begin{ruledtabular}
+\begin{tabular}{lcccccc}
+$e$ & $\rho(e)$ & \multicolumn{2}{c}{obs.} & \multicolumn{2}{c}{bound} \\
+ & & $10^{-6}$ & $10^{-12}$ & $10^{-6}$ & $10^{-12}$ \\
+\hline
+0.0167 (Earth) & 0.0227 & 4 & 7 & 4 & 8 \\
+0.0934 (Mars) & 0.1267 & 6 & 12 & 7 & 13 \\
+0.25 & 0.3345 & 10 & 22 & 12 & 24 \\
+0.6 & 0.7418 & 33 & 75 & 43 & 87 \\
+0.89 & 0.9644 & 230 & 575 & 350 & 712 \\
+\end{tabular}
+\end{ruledtabular}
+\end{table}
+
+A position error $\varepsilon$ translates into an angular error
+$\lesssim\varepsilon/\Delta_{\min}$, where $\Delta_{\min}$ is the minimum
+Earth--body distance (about $0.37$~AU for Mars at a perihelic opposition).
+Angular accuracy requirements must therefore be set against $\Delta_{\min}$,
+not against $a$, and diverge for close approaches. The bound~\eqref{eq:eps} is
+monotone in $N$; the realised error of a particular truncated set need not be
+at small $N$.
+
+\subsection{Perturbed motion: quasi-periodicity, KAM and frequency analysis}
+\label{sec:th-pert}
+
+Mutual perturbations break the exactness of the preceding subsections but, for
+the regular part of the Solar System, not their form. Consider a near-integrable
+Hamiltonian $H=H_0(\mathbf I)+\mu H_1(\mathbf I,\boldsymbol\theta)$ in
+action--angle variables.
+
+\emph{Classical background.} Lagrange--Laplace secular theory adds linear
+precession and node-regression frequencies $g_i,s_i$ to the mean motions $n_j$,
+replacing the fixed $(\omega,\Omega)$ of Subsec.~\ref{sec:th-3d} by slowly
+rotating frames \cite{MurrayDermott1999,BrouwerClemence1961}. The
+Kolmogorov--Arnold--Moser (KAM) theorem guarantees that, for sufficiently
+small $\mu$, a large measure of initial conditions with non-resonant
+(Diophantine) frequencies lies on invariant tori carrying quasi-periodic
+motion \cite{Arnold1963a,Arnold1963b,Arnold1989}; the epicycle reading of this
+is due to Gallavotti \cite{Gallavotti2001}. On such a torus with $d$
+rationally independent frequencies $\boldsymbol\omega$, assuming analytic
+dependence so that the embedding has absolutely summable Fourier coefficients,
+\begin{gather}
+\mathbf r(t)=\sum_{\mathbf m\in\mathbb Z^d}\mathbf A_{\mathbf m}e^{\ii\langle\mathbf m,\boldsymbol\omega\rangle t},\notag\\
+\sum_{\mathbf m}|\mathbf A_{\mathbf m}|<\infty,
+\label{eq:quasi}
+\end{gather}
+a Bohr almost-periodic function \cite{Bohr1925,Laskar1993,Laskar2003}. Each
+term is a uniformly rotating vector, i.e.\ an epicycle, but the frequencies are
+integer combinations of $\boldsymbol\omega$ (for the Solar System, the $n_j$,
+$g_i$, $s_i$ and a few resonance arguments \cite{Laskar1990,Laskar2003}), not
+multiples of one fundamental frequency. The geocentric vector subtracts two
+such expansions, so the two-family structure of Prop.~\ref{prop:geo}
+generalises: a union of the two quasi-periodic spectra, still without cross
+terms in the Cartesian vector.
+
+\emph{Construction.} The amplitudes and frequencies in Eq.~\eqref{eq:quasi}
+are obtained numerically from an integrated or ephemeris time series by
+Laskar's numerical analysis of fundamental frequencies (NAFF)
+\cite{Laskar1990,Laskar1992,Laskar1993,Laskar1999}: iteratively maximise the
+windowed Fourier amplitude over frequency, subtract the term found, and
+repeat, with Gram--Schmidt orthogonalisation of the basis (Sec.~\ref{sec:numerics}).
+The analytic coefficients of the previous subsections give a prior against which
+the NAFF output can be validated.
+
+\paragraph*{Limits.} The expansion is exact and uniform in time only for bounded
+unperturbed Kepler motion. In general:
+\begin{enumerate}
+\item \emph{Chaos.} The inner planets are chaotic with a Lyapunov time of about
+5~Myr \cite{Laskar1990}; quasi-periodicity then holds only approximately on a
+finite window, with slowly drifting frequencies \cite{FuLaskar2019}.
+``Arbitrary precision for all time'' is false for perturbed motion.
+\item \emph{Finite windows.} Over a record of length $T$ the representation can be
+made accurate to the NAFF resolution; extrapolation outside the fitted window
+degrades with the drift rate.
+\item \emph{Frequency resolution.} Lines separated by less than $\sim2\pi/T$
+cannot be separated, so near-resonant combinations need a longer record and the
+number of terms needed grows with $T$.
+\item \emph{Near-resonances.} KAM tori are destroyed near resonances and the
+measure of surviving tori tends to one only as $\mu\to0$. For the planets
+$\mu\sim10^{-3}$; the Jupiter--Saturn near-resonance (the Great Inequality) is a
+long-period term, not a breakdown, but it is the largest perturbation line.
+\item \emph{Unbound orbits.} For $e\ge1$ the orbit is not bounded and $z(M)$ is
+not periodic; the series of Prop.~\ref{prop:series} does not exist.
+Quasi-periodicity is a property of bounded motion. A hyperbolic flyby can be
+matched on any finite window by trigonometric polynomials (Weierstrass) but with
+no dynamical meaning or extrapolation. For $e\to1^-$ the series converges, but
+with $N\propto(1-e)^{-3/2}$.
+\item \emph{The Earth is not a Kepler point either.} Its orbital elements vary
+secularly, the Earth--Moon barycentre (not the Earth's centre) moves on the
+Kepler-like orbit, and the Sun is displaced from the barycentre by $\sim0.005$~AU
+mainly by Jupiter. These add frequency lines rather than conceptual obstacles.
+\end{enumerate}
