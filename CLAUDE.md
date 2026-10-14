@@ -60,21 +60,32 @@ This protocol applies when ending a Beads implementation workflow. It is subordi
 
 ## Build & Test
 
-_Add your build and test commands here_
-
 ```bash
-# Example:
-# npm install
-# npm test
+uv sync                                          # Python deps (Python >= 3.11)
+uv run pytest -q                                 # Python tests
+uv run python experiments/perturbed_ceres.py     # ~3 min; regenerates experiments/out
+uv run python experiments/make_figures.py       # figures/ + web/public/data (deterministic; no diff expected)
+uv run python experiments/export_golden.py       # golden vectors for the TS port
+make -C paper                                    # build paper/main.pdf (pdflatex+bibtex, revtex4-2); `make -C paper clean`
+npm --prefix web ci                              # Node >= 22.12 (web/.nvmrc: 24)
+npm --prefix web test                            # vitest
+npm --prefix web run build                       # tsc --noEmit && vite build
+npm --prefix web run dev                         # dev server (also: preview)
 ```
 
 ## Architecture Overview
 
-_Add a brief overview of your project architecture_
+- `epicycles/`: Python reference. `kepler.py` (Kepler solver), `expansion.py` (Bessel/Fourier epicycle chains for body and Earth, geocentric difference), `bounds.py` (truncation bounds), `frames.py`, `bodies.py` (J2000 elements), `nbody.py` (perturbed integration), `naff.py` (frequency analysis), `export.py` (epicycle JSON).
+- `experiments/`: scripts producing `experiments/out`, `figures/`, `web/public/data`, and golden vectors.
+- `web/`: Vite + TypeScript + three.js SPA. `src/math` is a TS port of the Python math (golden-tested), `src/sim` presets/URL params, `src/view` 3D views, `src/ui` panels.
+- `paper/`: revtex4-2 paper; `research/refs.bib` is the bibliography source of truth (copied to `paper/refs.bib`).
+- `theory/derivation.md`: derivation; `docs/epicycle-schema.md`: JSON schema shared by Python and SPA.
 
 ## Conventions & Patterns
 
-_Add your project-specific conventions here_
+- Units: AU, day, radian. Times are Julian dates (TDB).
+- Epicycle chains use the JSON schema in `docs/epicycle-schema.md` (version 1).
+- One bead per commit, with the bead id in the commit message.
 <!-- BEGIN domestique (managed) -->
 # Orchestration policy
 
