@@ -22,6 +22,7 @@ export class HelioView {
   private earth = new THREE.Mesh(new THREE.SphereGeometry(0.035, 16, 12), new THREE.MeshBasicMaterial({ color: 0x4aa3ff }));
   private body = new THREE.Mesh(new THREE.SphereGeometry(0.03, 16, 12), new THREE.MeshBasicMaterial({ color: 0xff8a4a }));
   private link: THREE.Line;
+  private bodyOrbit: THREE.LineLoop;
   private linkPos = new Float32Array(6);
   private labels: Label[];
   private lEarth: Label; private lBody: Label;
@@ -30,7 +31,8 @@ export class HelioView {
     const sc = this.scene;
     sc.add(makeGrid(6, 12));
     const sun = new THREE.Mesh(new THREE.SphereGeometry(0.07, 20, 14), new THREE.MeshBasicMaterial({ color: 0xffd84a }));
-    sc.add(sun, this.earth, this.body, orbitLine(earthEl, 0x4aa3ff), orbitLine(bodyEl, 0xff8a4a));
+    this.bodyOrbit = orbitLine(bodyEl, 0xff8a4a);
+    sc.add(sun, this.earth, this.body, orbitLine(earthEl, 0x4aa3ff), this.bodyOrbit);
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(this.linkPos, 3));
     this.link = new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0xffffff }));
@@ -46,6 +48,21 @@ export class HelioView {
     this.earthEl = earthEl; this.bodyEl = bodyEl;
   }
   private earthEl: Elements; private bodyEl: Elements;
+
+  /** Switch the body whose orbit is drawn; fits the camera distance to the aphelion. */
+  setBody(bodyEl: Elements, label: string): void {
+    this.bodyEl = bodyEl;
+    this.scene.remove(this.bodyOrbit);
+    this.bodyOrbit.geometry.dispose();
+    this.bodyOrbit = orbitLine(bodyEl, 0xff8a4a);
+    this.scene.add(this.bodyOrbit);
+    this.lBody.el.textContent = label;
+    const aph = bodyEl.a * (1 + bodyEl.e);
+    const dist = Math.max(3, 4.0 * aph);
+    this.controls.target.set(0, 0, 0);
+    this.camera.position.set(0, -0.65 * dist, 0.76 * dist);
+    this.controls.update();
+  }
 
   update(t: number, w: number, h: number): void {
     const pe = position(this.earthEl, t), pb = position(this.bodyEl, t);

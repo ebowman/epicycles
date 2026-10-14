@@ -5,12 +5,18 @@
  * OrbitControls attach to the divs (which sit above the canvas), so each view has its own camera.
  */
 import * as THREE from "three";
-import { EARTH, MARS, J2000 } from "./math/bodies";
-import { geocentricChain } from "./math/expansion";
+import { EARTH, J2000 } from "./math/bodies";
+import { Epicycle, geocentricChain } from "./math/expansion";
 import { position } from "./math/kepler";
 import { Clock, MAX_SPEED, MIN_SPEED } from "./sim/clock";
 import { AppState } from "./sim/state";
-import { computeError, ErrorReadout, formatAU, formatLonError, jdToDate } from "./sim/geometry";
+import { chainTipInto, computeError, ErrorReadout, formatAU, formatLonError, jdToDate } from "./sim/geometry";
+import {
+  BIG_N_WARN, BODY_ELEMENTS, BODY_LABEL, BodyId, NAFF_HELIO_ELEMENTS, NAFF_INTERIOR, NAFF_WINDOW,
+  PresetId, circleCountFor, ptolemaicChain, clampToWindow, fourierN, nMaxFor, parseParams, presetDefaults, selectTopK, studyRows,
+} from "./sim/presets";
+import { LoadedChain, loadChain } from "./data/loader";
+import { buildInfo } from "./ui/info";
 import { HelioView } from "./view/heliocentric";
 import { GeoView } from "./view/geocentric";
 
@@ -23,11 +29,10 @@ function webglAvailable(): boolean {
   } catch { return false; }
 }
 
-function main(): void {
+async function main(): Promise<void> {
   if (!webglAvailable()) { $("nogl").style.display = "flex"; return; }
-  const q = new URLSearchParams(location.search);
-  const num = (k: string, d: number): number => { const v = Number(q.get(k)); return q.has(k) && Number.isFinite(v) ? v : d; };
-  const state = new AppState(new Clock(num("t", 2452880), num("speed", 30), q.get("paused") !== "1"), num("N", 20));
+  const init = parseParams(location.search);
+  const state = new AppState(new Clock(init.t, init.speed, !init.paused), init.N);
   const clock = state.clock;
 
   const canvas = $<HTMLCanvasElement>("gl");
@@ -41,29 +46,149 @@ function main(): void {
   window.addEventListener("resize", resize);
   resize();
 
-  const vL = $("vL"), vR = $("vR");
-  const helio = new HelioView(vL, vL, EARTH, MARS);
-  const geo = new GeoView(vR, vR, EARTH, MARS);
-  const rebuild = (): void => geo.setChain(geocentricChain(MARS, EARTH, state.N, state.N));
-  rebuild();
+  const vL = $("vL"), vR = $("vR"), infoEl = $("info");
+  const info = buildInfo(infoEl);
+  const helio = new HelioView(vL, vL, EARTH, BODY_ELEMENTS.mars);
+  const geo = new GeoView(vR, vR, EARTH, BODY_ELEMENTS.mars);
 
   // controls
   const play = $<HTMLButtonElement>("play"), speed = $<HTMLInputElement>("speed"), scrub = $<HTMLInputElement>("scrub");
-  const nsl = $<HTMLInputElement>("nsl");
+  const nsl = $<HTMLInputElement>("nsl"), bodySel = $<HTMLSelectElement>("body"), warn = $("warn");
+  const chkCircles = $<HTMLInputElement>("chkCircles"), chkError = $<HTMLInputElement>("chkError");
   const lg = Math.log10(MAX_SPEED / MIN_SPEED);
   speed.value = String(Math.log10(clock.speed / MIN_SPEED) / lg);
-  nsl.value = String(state.N);
+
+  let body: BodyId = "mars";
+  let naff: LoadedChain | null = null;
+  let naffFull: Epicycle[] = [];
+  let ptolemaic = false;
+  let pendingFrame: "ref" | "opp" | null = "ref";
+  let fourierStart: number | null = null;
+  let warnTimer = 0;
+  const flash = (msg: string): void => { warn.textContent = msg; clearTimeout(warnTimer); warnTimer = window.setTimeout(updateWarn, 4000); };
+
+  const rebuild = (): void => {
+    if (body === "naff") geo.setChain(selectTopK(naffFull, state.N));
+    else {
+      const full = geocentricChain(BODY_ELEMENTS[body], EARTH, state.N, state.N);
+      geo.setChain(ptolemaic && state.N === 1 ? ptolemaicChain(full) : full);
+    }
+    updateWarn();
+  };
+  function updateWarn(): void {
+    const c = circleCountFor(body, state.N);
+    warn.textContent = body !== "naff" && state.N > BIG_N_WARN
+      ? `Warning: N=${state.N} gives 2(2N+1) = ${c} circles; rendering may be slow.` : "";
+  }
+
+  async function setBody(id: BodyId): Promise<void> {
+    if (id === "naff" && !naff) {
+      try { naff = await loadChain(`${import.meta.env.BASE_URL}data/perturbed_ceres.json`); naffFull = naff.epicycles; }
+      catch (e) { flash(`Could not load perturbed_ceres.json: ${(e as Error).message}`); id = "mars"; }
+    }
+    body = id;
+    bodySel.value = id;
+    state.setNMax(nMaxFor(id));
+    nsl.max = String(state.nMax);
+    $("nlabel").textContent = id === "naff" ? "K" : "N";
+    nsl.setAttribute("aria-label", id === "naff"
+      ? "Keep the top K harmonics: 2K+1 largest NAFF circles (arrow keys)" : "Number of epicycle harmonics N (arrow keys)");
+    if (id === "naff") {
+      geo.setBody(NAFF_HELIO_ELEMENTS, "Ceres (NAFF chain)", (tau, out) => chainTipInto(naffFull, tau, out));
+      helio.setBody(NAFF_HELIO_ELEMENTS, "Ceres (osculating Kepler)");
+      scrub.min = String(NAFF_WINDOW[0] - J2000); scrub.max = String(NAFF_WINDOW[1] - J2000); scrub.step = "5";
+      clock.scrub(clampToWindow(clock.t, id));
+    } else {
+      const el = BODY_ELEMENTS[id];
+      geo.setBody(el, BODY_LABEL[id]);
+      helio.setBody(el, BODY_LABEL[id]);
+      scrub.min = "-7305"; scrub.max = "7305"; scrub.step = "0.5";
+    }
+    nsl.value = String(state.N);
+    rebuild();
+    pendingFrame = "ref";
+    const rows = naff && id === "naff" ? studyRows(naff.study) : [];
+    const note = id === "naff"
+      ? "Perturbed Ceres: N-body integration (Sun, Earth, Jupiter, Saturn) fitted by NAFF into 401 circles; the slider keeps the top K by radius (2K+1 circles). Reference path = full NAFF reconstruction (all 401 circles), not the N-body truth; see paper for N-body truth error and the table below. Left view shows the unperturbed osculating Kepler ellipse for context."
+      : `${BODY_LABEL[id]}: analytic Bessel/Fourier expansion of the Kepler orbit, computed live. Reference path = exact geocentric Kepler path. Circles: ${circleCountFor(id, state.N)}.`;
+    const win = id === "naff"
+      ? `Study window ${jdToDate(NAFF_WINDOW[0])} to ${jdToDate(NAFF_WINDOW[1])} (clock limited to it); interior (middle 80%) ${jdToDate(NAFF_INTERIOR[0])} to ${jdToDate(NAFF_INTERIOR[1])}.` : "";
+    info.setMode(note, rows, win);
+  }
+
+  function setErrorShown(on: boolean): void { chkError.checked = on; geo.setShowError(on); }
+  const chkPtol = $<HTMLInputElement>("chkPtol");
+  function setPtolemaic(on: boolean): void { ptolemaic = on; chkPtol.checked = on; rebuild(); }
+
+  async function applyPreset(p: PresetId): Promise<void> {
+    const d = presetDefaults(p);
+    fourierStart = null;
+    state.setNMax(nMaxFor(d.body ?? "mars"));
+    state.setN(d.N ?? 20);
+    await setBody(d.body ?? "mars");
+    state.setN(d.N ?? 20); nsl.value = String(state.N);
+    setPtolemaic(d.ptolemaic ?? false);
+    clock.scrub(d.t ?? clock.t); clock.play();
+    setErrorShown(d.showError ?? false);
+    if (d.fourier) fourierStart = performance.now();
+  }
+
+  await setBody(init.body);
+  state.setN(init.N); nsl.value = String(state.N); rebuild();
+  geo.setShowCircles(init.showCircles); chkCircles.checked = init.showCircles;
+  setErrorShown(init.showError);
+  setPtolemaic(init.ptolemaic);
+  if (init.fourier) { state.setN(1); nsl.value = "1"; rebuild(); fourierStart = performance.now(); }
+  if (init.zoom === "opposition") pendingFrame = "opp";
+  const showInfo = init.info && window.innerWidth > 800;
+  infoEl.classList.toggle("hidden", !showInfo);
+  $("infoBtn").setAttribute("aria-expanded", String(showInfo));
+
+  const stepN = (d: number): void => { fourierStart = null; if (state.setN(state.N + d)) { nsl.value = String(state.N); rebuild(); } };
   play.onclick = (): void => { clock.toggle(); };
   speed.oninput = (): void => clock.setSpeed(MIN_SPEED * Math.pow(10, Number(speed.value) * lg));
-  scrub.oninput = (): void => clock.scrub(J2000 + Number(scrub.value));
-  nsl.oninput = (): void => { if (state.setN(Number(nsl.value))) rebuild(); };
+  scrub.oninput = (): void => clock.scrub(clampToWindow(J2000 + Number(scrub.value), body));
+  nsl.oninput = (): void => { fourierStart = null; if (state.setN(Number(nsl.value))) rebuild(); };
+  bodySel.onchange = (): void => { fourierStart = null; setPtolemaic(false); void setBody(bodySel.value as BodyId); };
+  chkCircles.onchange = (): void => geo.setShowCircles(chkCircles.checked);
+  chkPtol.onchange = (): void => setPtolemaic(chkPtol.checked);
+  chkError.onchange = (): void => geo.setShowError(chkError.checked);
+  $("zoomOpp").onclick = (): void => { pendingFrame = "opp"; };
+  $("frameAll").onclick = (): void => { pendingFrame = "ref"; };
+  $("pPtolemy").onclick = (): void => { void applyPreset("ptolemy"); };
+  $("pFourier").onclick = (): void => { void applyPreset("fourier"); };
+  $("pNaff").onclick = (): void => { void applyPreset("ceres-naff"); };
+  $("infoBtn").onclick = (): void => {
+    const hide = !infoEl.classList.contains("hidden");
+    infoEl.classList.toggle("hidden", hide);
+    $("infoBtn").setAttribute("aria-expanded", String(!hide));
+  };
+  document.addEventListener("keydown", (ev) => {
+    const el = ev.target as HTMLElement, tag = el.tagName;
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    if (ev.key === " ") {
+      if (tag === "BUTTON" || tag === "SELECT" || (tag === "INPUT" && (el as HTMLInputElement).type === "checkbox")) return;
+      ev.preventDefault(); clock.toggle();
+    } else if (tag !== "INPUT" && tag !== "SELECT" && tag !== "TEXTAREA") {
+      if (ev.key === "ArrowRight" || ev.key === "ArrowUp") { ev.preventDefault(); stepN(1); }
+      else if (ev.key === "ArrowLeft" || ev.key === "ArrowDown") { ev.preventDefault(); stepN(-1); }
+    }
+  });
 
   const err: ErrorReadout = { au: 0, lonArcsec: 0 };
   const tip = new Float64Array(3);
-  const truth = [0, 0, 0];
+  const truth = new Float64Array(3);
+  const tmpB = new Float64Array(3);
   const vp = new THREE.Vector4();
   let last = performance.now(), frames = 0, fpsT = last, fps = 0;
   const readout = $("readout"), date = $("date"), speedv = $("speedv"), nv = $("nv");
+
+  function truthAt(t: number): void {
+    if (body === "naff") { chainTipInto(naffFull, t, truth); return; }
+    const pm = position(BODY_ELEMENTS[body], t), pe = position(EARTH, t);
+    tmpB[0] = pm[0] - pe[0]; tmpB[1] = pm[1] - pe[1]; tmpB[2] = pm[2] - pe[2];
+    truth.set(tmpB);
+  }
 
   function drawView(el: HTMLElement, scene: THREE.Scene, cam: THREE.PerspectiveCamera): { w: number; h: number } {
     const r = el.getBoundingClientRect();
@@ -81,14 +206,23 @@ function main(): void {
     const dt = Math.min((now - last) / 1000, 0.25);
     last = now;
     clock.step(dt);
+    if (body === "naff" && (clock.t > NAFF_WINDOW[1] || clock.t < NAFF_WINDOW[0])) clock.scrub(NAFF_WINDOW[0]);
+    if (fourierStart !== null) {
+      const n = fourierN((now - fourierStart) / 1000);
+      if (state.setN(n)) { nsl.value = String(state.N); rebuild(); }
+      if (n >= 20) fourierStart = null;
+    }
     const t = clock.t;
-
-    const pm = position(MARS, t), pe = position(EARTH, t);
-    truth[0] = pm[0] - pe[0]; truth[1] = pm[1] - pe[1]; truth[2] = pm[2] - pe[2];
+    truthAt(t);
 
     const rl = vL.getBoundingClientRect(), rr = vR.getBoundingClientRect();
     helio.update(t, rl.width, rl.height);
     geo.update(t, truth, tip, rr.width, rr.height);
+    if (pendingFrame !== null) {
+      if (pendingFrame === "opp") { if (!geo.zoomToOpposition(t)) flash("No retrograde loop within +-800 days; framing the whole path."); }
+      else geo.frameReference(t);
+      pendingFrame = null;
+    }
     computeError(tip, truth, err);
 
     drawView(vL, helio.scene, helio.camera);
@@ -102,10 +236,11 @@ function main(): void {
     speedv.textContent = `${clock.speed.toFixed(0)} d/s`;
     nv.textContent = `${state.N}`;
     readout.textContent =
-      `circles ${geo.circleCount} | err ${formatAU(err.au)} | lon err ${formatLonError(err.lonArcsec)} | ${fps.toFixed(0)} fps`;
+      `circles ${geo.circleCount} | err ${formatAU(err.au)} | lon err ${formatLonError(err.lonArcsec)} | ${fps.toFixed(0)} fps` +
+      (body === "naff" ? " | ref = full NAFF" : "");
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 }
 
-main();
+main().catch((e) => { console.error(e); });

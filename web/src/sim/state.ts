@@ -11,13 +11,20 @@ export class AppState {
     this.clock = clock;
     this.N = AppState.clampN(N);
   }
-  static clampN(n: number): number {
+  /** Upper bound for N in the current mode (per-body, see presets.nMaxFor). Default N_MAX. */
+  nMax = N_MAX;
+  static clampN(n: number, max = N_MAX): number {
     if (!Number.isFinite(n)) return N_MIN;
-    return Math.min(N_MAX, Math.max(N_MIN, Math.round(n)));
+    return Math.min(max, Math.max(N_MIN, Math.round(n)));
+  }
+  /** Change the upper bound (and re-clamp N). Returns true if N changed. */
+  setNMax(max: number): boolean {
+    this.nMax = Math.max(N_MIN, Math.round(max));
+    return this.setN(this.N);
   }
   /** Change N. Never touches the clock. Returns true if N actually changed. */
   setN(n: number): boolean {
-    const m = AppState.clampN(n);
+    const m = AppState.clampN(n, this.nMax);
     if (m === this.N) return false;
     this.N = m;
     return true;

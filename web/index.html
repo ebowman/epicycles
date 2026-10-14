@@ -5,36 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Epicycles</title>
     <style>
-      html,body{margin:0;height:100%;background:#0b0d14;color:#ccd;font:13px/1.35 system-ui,sans-serif;overflow:hidden}
+      :root{color-scheme:dark light;--bg:#121626;--fg:#d6dcf0;--muted:#8f9bbd;--line:#2a3350;--accent:#ffe08a;--btn:#1d2540;--btnfg:#e8ecff;--focus:#6cb6ff;--warn:#ffb86b;--panelbg:#121626f2}
+      @media (prefers-color-scheme: light){:root{--bg:#f4f6fb;--fg:#1c2233;--muted:#4d5878;--line:#c4cbe0;--accent:#7a4b00;--btn:#e4e8f4;--btnfg:#11172a;--focus:#0a58ca;--warn:#9a4a00;--panelbg:#f4f6fbf2}}
+      html,body{margin:0;height:100%;background:#0b0d14;color:var(--fg);font:13px/1.35 system-ui,sans-serif;overflow:hidden}
       #gl{position:fixed;inset:0;display:block;z-index:0}
       #ui{position:relative;z-index:2;display:flex;flex-direction:column;height:100%;pointer-events:none}
-      #panel{pointer-events:auto;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;padding:8px 12px;background:#121626ee;border-bottom:1px solid #263}
+      #panel{pointer-events:auto;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:6px 12px;background:var(--panelbg);color:var(--fg);border-bottom:1px solid var(--line)}
       #panel label{display:flex;align-items:center;gap:6px;white-space:nowrap}
-      #panel input[type=range]{width:150px}
-      #panel #scrub{width:260px}
-      #panel button{padding:3px 12px}
-      #readout{font-variant-numeric:tabular-nums;color:#ffe08a}
-      #views{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr}
+      #panel input[type=range]{width:130px}
+      #panel #scrub{width:220px}
+      button,select{font:inherit;padding:3px 10px;background:var(--btn);color:var(--btnfg);border:1px solid var(--line);border-radius:4px;cursor:pointer}
+      button:hover{border-color:var(--focus)}
+      :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+      #readout{font-variant-numeric:tabular-nums;color:var(--accent)}
+      #warn{color:var(--warn)}
+      #main{flex:1;min-height:0;display:flex}
+      #views{flex:1;min-width:0;display:grid;grid-template-columns:1fr 1fr}
       .view{position:relative;min-width:0;min-height:0;pointer-events:auto;overflow:hidden;border-right:1px solid #263}
       .view h2{position:absolute;margin:6px 10px;font-size:14px;font-weight:600;color:#9ab;pointer-events:none}
       .lbl{position:absolute;left:0;top:0;pointer-events:none;color:#cde;font-size:12px;text-shadow:0 0 3px #000}
+      #info{pointer-events:auto;width:320px;flex:none;overflow-y:auto;padding:8px 14px;background:var(--panelbg);color:var(--fg);border-left:1px solid var(--line)}
+      #info.hidden{display:none}
+      #info h2{font-size:15px;margin:4px 0}#info h3{font-size:13px;margin:12px 0 2px;color:var(--accent)}#info p{margin:4px 0}
+      #info .formula{overflow-x:auto;overflow-y:hidden;font-size:0.92em}
+      #info table{border-collapse:collapse;width:100%;font-size:11.5px;font-variant-numeric:tabular-nums}
+      #info caption{text-align:left;color:var(--muted);padding:2px 0}
+      #info th,#info td{border-bottom:1px solid var(--line);padding:2px 4px;text-align:right}#info th:first-child,#info td:first-child{text-align:left}
       #nogl{display:none;position:fixed;inset:0;z-index:5;background:#0b0d14;align-items:center;justify-content:center;text-align:center;padding:2em}
-      @media (max-width:800px){#views{grid-template-columns:1fr;grid-template-rows:1fr 1fr}.view{border-right:0;border-bottom:1px solid #263}#panel #scrub{width:200px}}
+      @media (max-width:800px){#main{flex-direction:column}#views{grid-template-columns:1fr;grid-template-rows:1fr 1fr}.view{border-right:0;border-bottom:1px solid #263}#panel #scrub{width:180px}#info{width:auto;max-height:40%;border-left:0;border-top:1px solid var(--line)}}
     </style>
   </head>
   <body>
     <canvas id="gl"></canvas>
     <div id="ui">
-      <div id="panel">
-        <button id="play">Pause</button>
-        <label>Speed <input id="speed" type="range" min="0" max="1" step="0.001" value="0.65" /> <span id="speedv"></span></label>
-        <label>Time <input id="scrub" type="range" min="-7305" max="7305" step="0.5" value="0" /> <span id="date"></span></label>
-        <label>N <input id="nsl" type="range" min="1" max="60" step="1" value="20" /> <span id="nv"></span></label>
+      <div id="panel" role="group" aria-label="Controls">
+        <label>Body <select id="body" aria-label="Body">
+          <option value="mars">Mars</option><option value="ceres">Ceres</option><option value="eros">Eros</option>
+          <option value="phaethon">Phaethon</option><option value="naff">Perturbed Ceres (NAFF)</option></select></label>
+        <button id="pPtolemy" aria-label="Ptolemy mode: N=1 deferent plus epicycle for Mars">Ptolemy mode</button>
+        <button id="pFourier" aria-label="Fourier mode: animate N from 1 to 20">Fourier mode</button>
+        <button id="pNaff" aria-label="Perturbed Ceres NAFF preset">Ceres NAFF</button>
+        <button id="play" aria-label="Play or pause (space)">Pause</button>
+        <label>Speed <input id="speed" type="range" min="0" max="1" step="0.001" value="0.65" aria-label="Simulation speed" /> <span id="speedv"></span></label>
+        <label>Time <input id="scrub" type="range" min="-7305" max="7305" step="0.5" value="0" aria-label="Simulation time" /> <span id="date"></span></label>
+        <label><span id="nlabel">N</span> <input id="nsl" type="range" min="1" max="60" step="1" value="20" aria-label="Number of epicycle harmonics N (left and right arrow keys)" /> <span id="nv"></span></label>
+        <label><input id="chkCircles" type="checkbox" checked /> Show circles</label>
+        <label><input id="chkError" type="checkbox" /> Show error</label>
+        <label title="At N=1, keep only the k=+1 deferent and k=+1 epicycle (Ptolemaic model, 2 circles)"><input id="chkPtol" type="checkbox" /> Ptolemaic (N=1: k=+1 only)</label>
+        <button id="zoomOpp" aria-label="Zoom to the current opposition retrograde loop">Zoom to opposition</button>
+        <button id="frameAll" aria-label="Frame the whole reference path">Frame path</button>
+        <button id="infoBtn" aria-label="Show or hide the explanation panel" aria-expanded="true">Info</button>
+        <span id="warn" role="status"></span>
         <span id="readout"></span>
       </div>
-      <div id="views">
-        <div class="view" id="vL"><h2>Heliocentric (Newton/Kepler)</h2></div>
-        <div class="view" id="vR"><h2>Geocentric (epicycles)</h2></div>
+      <div id="main">
+        <div id="views">
+          <div class="view" id="vL" tabindex="0" role="img" aria-label="Heliocentric 3D view of Earth and the selected body"><h2>Heliocentric (Newton/Kepler)</h2></div>
+          <div class="view" id="vR" tabindex="0" role="img" aria-label="Geocentric 3D view: epicycle chain tracing the body's path as seen from Earth"><h2>Geocentric (epicycles)</h2></div>
+        </div>
+        <aside id="info" aria-label="Explanation"></aside>
       </div>
     </div>
     <div id="nogl"><div><h2>WebGL is not available</h2><p>This visualisation needs WebGL. Try a current browser with hardware acceleration enabled.</p></div></div>
