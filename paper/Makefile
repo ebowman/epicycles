@@ -4,13 +4,14 @@ TEXBIN ?= /Library/TeX/texbin
 export PATH := $(TEXBIN):$(PATH)
 PDFLATEX = pdflatex -halt-on-error -interaction=nonstopmode
 SECTIONS = $(wildcard sections/*.tex)
+FIGURES = $(wildcard ../figures/*.pdf) $(wildcard ../figures/*.png)
 
 all: main.pdf
 
 refs.bib: ../research/refs.bib
 	cp $< $@
 
-main.pdf: main.tex refs.bib $(SECTIONS)
+main.pdf: main.tex refs.bib $(SECTIONS) $(FIGURES)
 	$(PDFLATEX) main
 	bibtex main
 	$(PDFLATEX) main

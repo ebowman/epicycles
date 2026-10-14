@@ -1,4 +1,72 @@
 \section{Discussion}
 \label{sec:discussion}
-% TODO: validity domain (bounded quasi-periodic, chaotic finite-time, unbound fails), answer to the epicycles-fit-anything objection
-\todo{validity domain (bounded quasi-periodic, chaotic finite-time, unbound fails), answer to the epicycles-fit-anything objection.}
+
+\paragraph*{In what sense the hypothesis holds.}
+The statement ``planetary motion is a system of epicycles'' is true in three
+distinct and increasingly weak senses. (i)~For an unperturbed bound Kepler
+orbit the heliocentric position is \emph{exactly} a Fourier series in the
+mean anomaly, uniformly convergent for every $e<1$, and each term, a vector
+in an orbital plane, is the sum of two counter-rotating circles
+(Props.~\ref{prop:series} and~\ref{prop:twocircles}). (ii)~The geocentric
+position is the sum of two such series, one for the body and one for the
+Earth, so it is an epicycle system with radii and rates fixed by the orbital
+elements. It is, however, not a Fourier series in the strict sense: the two
+mean motions are in general incommensurate, so the function is Bohr
+almost-periodic, with frequency module $\mathbb Zn_b+\mathbb Zn_\oplus$. There
+are no cross terms at combination frequencies in the Cartesian geocentric
+vector, because the difference is linear; numerically the amplitudes at
+combination frequencies are $10^{-16}$ to $10^{-15}$ relative, with a single
+line at $8.4\times10^{-11}$, and the out-of-mask $\sin^8$ window leakage
+is $3\times10^{-8}$. (iii)~For
+perturbed bounded motion near an integrable one, the motion is
+quasi-periodic and a finite set of epicycles recovered by frequency analysis
+represents it over a finite window; our Ceres experiment shows this, with
+interior errors that decrease monotonically with the number of lines, and
+also shows its price, namely window-edge errors that do not.
+
+The representation fails, or is only finite-time, in the cases flagged in
+the theory. For unbound orbits ($e\ge1$) the series does not exist. For
+chaotic motion the frequencies drift and a fixed set of circles is valid
+only on a finite time. Over long windows secular drift of the elements
+limits any fixed chain, and in all cases the resolution of two lines is
+limited to about $2\pi/T$ for a record of length $T$. High eccentricity is
+also expensive: the number of harmonics grows as $(1-e)^{-3/2}$, about $450$ per orbit for
+$10^{-9}$~AU at $e=0.89$. Finally, the Cartesian bound does not bound the
+angular error near close approaches, where it scales as $1/\Delta$.
+
+\paragraph*{``Epicycles can fit anything.''}
+Hanson's observation \cite{Hanson1960} and its philosophical consequence
+\cite{Carman2010} are correct for an arbitrary curve, and a data-driven
+frequency analysis is, in that sense, a fit; our NAFF chains are fitted. For
+the analytic construction the objection does not apply: every radius and
+rate follows from $(a,e,i,\omega,\Omega,M_0)$ of the two orbits, and nothing is
+adjusted to the geocentric data. The number of circles is a truncation
+parameter with a rigorous error bound, not a freedom to absorb discrepancies.
+This answers the objection only for the dynamically derived expansion, not for
+Ptolemy's own free parameters, and the NAFF case is a measurement of
+the spectrum of a trajectory rather than an independent test.
+
+\paragraph*{Relation to prior work.}
+As Sec.~\ref{sec:prior} describes, the conceptual core is Gallavotti's
+\cite{Gallavotti2001}, the Bessel expansion is classical
+\cite{Dutka1995,Kapteyn1893}, and the numerical FFT route is that of Peralta
+et al.\ \cite{Peralta2003}; modern ephemerides are likewise sums of uniform
+circular motions \cite{Bretagnon1988,Kudryavtsev2016}. Our results are a
+quantitative, explicitly geocentric and three-dimensional assembly of these
+ideas, with truncation bounds and a check of NAFF against the analytic
+terms. This is a statement about the sources we found, not a proof of
+priority.
+
+\paragraph*{Limitations.}
+(1)~We do not validate against JPL Horizons or any observed ephemeris; the
+reference for Kepler tests is exact two-body motion and for Ceres an
+N-body integration with only the Sun, the Earth, Jupiter and Saturn.
+(2)~The planetary elements are approximate J2000 mean elements and no light
+time, aberration, precession or nutation is modelled, which changes the
+numbers but not the structure of the argument. (3)~The Ptolemaic models in
+Table~\ref{tab:ptolemy} are harmonic truncations of the Kepler series, not
+reconstructions of Ptolemy's models. (4)~The NAFF edge effects are
+significant: over the full window the extracted chain is no better than a
+fitted Kepler orbit. (5)~Truncation error is not monotone in the retained set
+for small orders. (6)~Several historical sources were consulted only through
+secondary accounts (Sec.~\ref{sec:history}).
