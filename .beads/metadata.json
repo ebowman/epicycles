@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "epicycles",
+  "project_id": "531f58a4-3e54-484a-adf9-63b29cc56214"
+}
