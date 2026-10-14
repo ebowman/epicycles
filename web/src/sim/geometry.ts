@@ -74,3 +74,13 @@ export function jdToDate(jd: number): string {
   const d = new Date(ms);
   return Number.isNaN(d.getTime()) ? "n/a" : d.toISOString().slice(0, 10);
 }
+
+/**
+ * Camera distance at which a box of half-extents (hw, hh) [AU] fits a viewport of the given aspect
+ * (width/height) for a vertical field of view `fovDeg`, with a 1.3x margin that also covers the
+ * perspective widening of the near edge under the slight camera tilt. Aspect is clamped to >= 0.2.
+ */
+export function fitDistance(hw: number, hh: number, fovDeg: number, aspect: number): number {
+  const tanH = Math.tan((fovDeg * Math.PI) / 360);
+  return 1.3 * Math.max(hh / tanH, hw / (tanH * Math.max(0.2, aspect)));
+}

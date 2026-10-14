@@ -36,7 +36,7 @@ export function buildInfo(root: HTMLElement): InfoPanel {
     "Seen from Earth, a body sits at the vector difference of two heliocentric Kepler orbits. The right view draws exactly this path (green) and the epicycle chain that reproduces it.",
     FORMULAS.geo);
   section(root, "Fourier series = epicycles",
-    "A Kepler orbit is periodic in the mean anomaly M, so z = x + iy has a Fourier series. Each term is a circle of radius a|c_k| turning at k times the mean motion, riding on the previous one. Truncating at |k| <= N gives the N-epicycle model; N=1 is Ptolemy's deferent plus epicycle.",
+    "A Kepler orbit is periodic in the mean anomaly M, so z = x + iy has a Fourier series. Each term is a circle of radius a|c_k| turning at k times the mean motion, riding on the previous one. Truncating at |k| <= N gives the N-epicycle model; N=1 is a 6-circle chain; Ptolemy's model is the 2-circle k=+1 subset (the Ptolemaic checkbox).",
     FORMULAS.fourier);
   section(root, "Bessel coefficients",
     "The coefficients are closed-form in Bessel functions of the first kind, so no numerical fitting is needed. Their decay is set by the eccentricity e: Mars (e = 0.09) needs a few circles, Phaethon (e = 0.89) needs hundreds.",

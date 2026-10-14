@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Clock } from "../src/sim/clock";
 import { AppState } from "../src/sim/state";
 import { RingTrail } from "../src/sim/trail";
-import { chainArmsInto, chainTipInto, circleMatrix, computeError, jdToDate, ErrorReadout } from "../src/sim/geometry";
+import { chainArmsInto, chainTipInto, circleMatrix, computeError, fitDistance, jdToDate, ErrorReadout } from "../src/sim/geometry";
 import { EARTH, MARS, J2000 } from "../src/math/bodies";
 import { chainArms, evaluateChain, geocentricChain } from "../src/math/expansion";
 import { position } from "../src/math/kepler";
@@ -108,5 +108,20 @@ describe("RingTrail", () => {
     expect(tr.copyOrdered(out)).toBe(3);
     expect([out[0], out[3], out[6]]).toEqual([3, 4, 5]);
     tr.clear(); expect(tr.count).toBe(0);
+  });
+});
+
+describe("fitDistance", () => {
+  it("keeps a wide box inside a narrow viewport, with margin", () => {
+    const fov = 40, hw = 2, hh = 2.3, aspect = 0.72;
+    const d = fitDistance(hw, hh, fov, aspect);
+    const tanH = Math.tan((fov * Math.PI) / 360);
+    expect(d * tanH * aspect).toBeGreaterThanOrEqual(1.25 * hw);
+    expect(d * tanH).toBeGreaterThanOrEqual(1.25 * hh);
+  });
+  it("is height-limited in a wide viewport and clamps tiny aspects", () => {
+    const tanH = Math.tan((40 * Math.PI) / 360);
+    expect(fitDistance(1, 1, 40, 3)).toBeCloseTo(1.3 / tanH, 9);
+    expect(fitDistance(1, 1, 40, 0)).toBeCloseTo(1.3 / (tanH * 0.2), 9);
   });
 });

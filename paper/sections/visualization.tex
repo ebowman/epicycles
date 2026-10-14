@@ -1,15 +1,18 @@
 \section{Visualization}
 \label{sec:viz}
 
-\begin{figure}[H]
-\includegraphics[width=\columnwidth]{fig_spa_screenshot.png}
-\caption{Screenshot of the interactive viewer (Mars, Julian date 2452960,
-$N=1$). Left: heliocentric Newtonian view. Right: geocentric view with the
-epicycle chain (yellow arm), its circles and the trail of the chain tip;
-the readout (top right) shows the circle count and the error against exact
-Kepler motion.}
+\begin{figure*}[t]
+\includegraphics[width=\textwidth]{fig_spa_screenshot.png}
+\caption{Screenshot of the interactive viewer (URL parameters
+\texttt{preset=ptolemy\&t=2452960\&N=1\&info=0}: Mars, Julian date 2452960,
+Ptolemaic $k=+1$ subset only, error shown). Left: heliocentric Newtonian view.
+Right: geocentric view with the epicycle chain (yellow arm), its two circles,
+the trail of the chain tip, the exact geocentric path (green) and the error
+vector (red) between the chain tip and true Mars. The readout (top) shows the
+circle count and the error against exact Kepler motion (here $0.244$~AU,
+$7.14^\circ$ in longitude).}
 \label{fig:spa}
-\end{figure}
+\end{figure*}
 
 To make the construction tangible we provide an open-source interactive
 viewer, a single-page web application (TypeScript and three.js) in the

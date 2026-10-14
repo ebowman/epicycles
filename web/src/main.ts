@@ -63,6 +63,11 @@ async function main(): Promise<void> {
   let naffFull: Epicycle[] = [];
   let ptolemaic = false;
   let pendingFrame: "ref" | "opp" | null = "ref";
+  // Re-run the last automatic framing when the geocentric viewport is resized (e.g. the info panel
+  // finishes laying out) unless the user has since moved the camera.
+  let lastFrame: "ref" | "opp" = "ref", userMoved = false;
+  geo.controls.addEventListener("start", () => { userMoved = true; });
+  new ResizeObserver(() => { if (!userMoved && pendingFrame === null) pendingFrame = lastFrame; }).observe(vR);
   let fourierStart: number | null = null;
   let warnTimer = 0;
   const flash = (msg: string): void => { warn.textContent = msg; clearTimeout(warnTimer); warnTimer = window.setTimeout(updateWarn, 4000); };
@@ -221,6 +226,7 @@ async function main(): Promise<void> {
     if (pendingFrame !== null) {
       if (pendingFrame === "opp") { if (!geo.zoomToOpposition(t)) flash("No retrograde loop within +-800 days; framing the whole path."); }
       else geo.frameReference(t);
+      lastFrame = pendingFrame; userMoved = false;
       pendingFrame = null;
     }
     computeError(tip, truth, err);

@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Elements, position } from "../math/kepler";
 import type { Epicycle } from "../math/expansion";
-import { chainArmsInto, chainTipInto, circleMatrix } from "../sim/geometry";
+import { chainArmsInto, chainTipInto, circleMatrix, fitDistance } from "../sim/geometry";
 import { RingTrail } from "../sim/trail";
 import { Label, makeGrid } from "./labels";
 
@@ -187,8 +187,7 @@ export class GeoView {
   private frameBox(min: ArrayLike<number>, max: ArrayLike<number>): void {
     const cx = (min[0]! + max[0]!) / 2, cy = (min[1]! + max[1]!) / 2, cz = (min[2]! + max[2]!) / 2;
     const hw = Math.max(0.02, (max[0]! - min[0]!) / 2), hh = Math.max(0.02, (max[1]! - min[1]!) / 2);
-    const tanH = Math.tan((this.camera.fov * Math.PI) / 360);
-    const dist = 1.2 * Math.max(hh / tanH, hw / (tanH * Math.max(0.2, this.aspect)));
+    const dist = fitDistance(hw, hh, this.camera.fov, this.aspect);
     const d = new THREE.Vector3(0, -0.3, 0.954);
     this.controls.target.set(cx, cy, cz);
     this.camera.position.set(cx + d.x * dist, cy + d.y * dist, cz + d.z * dist);

@@ -155,7 +155,10 @@ def fig_mars_retrograde() -> dict:
     styles = {"true (Kepler)": dict(color="k", lw=1.6),
               "Ptolemaic ($k=1$ deferent + epicycle)": dict(color=OI["verm"], lw=1.0, ls="--"),
               "$N=5$": dict(color=OI["sky"], lw=1.0)}
-    fig, (a1, a2) = plt.subplots(2, 1, figsize=(W1, 4.6), height_ratios=[1.2, 1])
+    saved_rc = dict(plt.rcParams)
+    plt.rcParams.update({"font.size": 8.5, "axes.labelsize": 8.5, "legend.fontsize": 7.5,
+                         "xtick.labelsize": 8, "ytick.labelsize": 8})
+    fig, (a1, a2) = plt.subplots(2, 1, figsize=(W1, 4.8), height_ratios=[1.2, 1])
     for k, (lon, lat) in ll.items():
         x = np.degrees(lon)
         brk = np.where(np.abs(np.diff(x)) > 180)[0] + 1
@@ -177,6 +180,8 @@ def fig_mars_retrograde() -> dict:
     a2.set_ylabel("longitude minus mean motion [deg]")
     fig.tight_layout()
     save(fig, "fig_mars_retrograde.pdf")
+    plt.rcParams.update({k: saved_rc[k] for k in ("font.size", "axes.labelsize", "legend.fontsize",
+                                                  "xtick.labelsize", "ytick.labelsize")})
     e_pt = _angdiff_deg(ll["Ptolemaic ($k=1$ deferent + epicycle)"][0], ll["true (Kepler)"][0])
     e_5 = _angdiff_deg(ll["$N=5$"][0], ll["true (Kepler)"][0])
     return {"planar_60yr": planar_stats, "window_ptol_max_deg": float(e_pt.max()),
