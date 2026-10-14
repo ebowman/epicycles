@@ -32,7 +32,7 @@ JSON with the formula below reproduces `evaluate_chain`.
 | `phase` | number | Angle [rad] from `u` toward `v` at `t = t_ref`. Not wrapped to a fixed interval. |
 | `normal` | [x,y,z] | Unit normal of the circle's plane, ecliptic J2000 frame. |
 | `u`, `v` | [x,y,z] | Orthonormal in-plane basis, `u x v = normal`. |
-| `source` | `"body"` or `"earth"` | Which orbit the circle came from. Earth circles are already negated (phase shifted by pi); do not negate again. |
+| `source` | `"body"`, `"earth"` or `"naff"` | Which orbit the circle came from. Earth circles are already negated (phase shifted by pi); do not negate again. `"naff"` marks circles extracted numerically by NAFF frequency analysis from a (perturbed) trajectory; these are already geocentric, so `meta.earth`/`N_*` may be null and `k` is null (loaders must not assume `body`/`earth` only). |
 | `k` | int / null | Harmonic index: circle comes from `c_k exp(i k M)` (k may be negative = retrograde). `null` if not from a Kepler expansion. |
 
 ## Evaluation formula (exact)
@@ -54,3 +54,22 @@ first j terms (origin = Earth); the final tip equals `r(t)`.
 * Truncation error is bounded by `epicycles.bounds.geocentric_tail_bound`
   (theory/derivation.md, Part 4); the JSON stores only the truncated terms.
 * Body and Earth orbital planes differ, so `normal` generally varies between circles.
+
+## Extension: `study` key (perturbed_ceres.json)
+
+`web/public/data/perturbed_ceres.json` (copied from `experiments/out/perturbed_ceres.json`) is a normal
+schema-v1 chain (all circles `source = "naff"`, 2K+1 = 401 circles for K = 200) plus one optional
+top-level key `study` (ignored by chain evaluators; added keys are backwards compatible):
+
+| `study` field | Meaning |
+|---|---|
+| `masses_Msun`, `epoch_jd`, `span_years`, `dt_days`, `n_samples` | N-body setup and sampling. |
+| `window`, `interior` | NAFF window description; "interior" = middle 80% of samples. |
+| `K_max`, `chain_K` | Lines extracted / lines in the stored chain (200). |
+| `naff_errors` | `{K: {n_circles, full_max, full_rms, interior_max, interior_rms}}` [AU] vs the N-body truncated to the first K lines. |
+| `kepler_osculating_chain_errors` | Same error dict for an osculating-element Kepler chain (dominated by element offset; not a fair comparison). |
+| `kepler_other` | Fitted Kepler baselines `kepler_mean_a`, `kepler_fit6` (with `a`, `e`). |
+| `kepler_note`, `units` | Free text; `units` = `AU`. |
+
+`web/public/data/index.json`: `{"files": [{"file", "body", "N", "kind": "analytic"|"naff", "n_circles"}, ...]}`
+(for the naff entry, `N` is `chain_K`).
