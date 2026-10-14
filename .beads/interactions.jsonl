@@ -1,0 +1,1 @@
+{"id":"int-993793496ab49fbffe641d81c9f6774e","kind":"field_change","created_at":"2026-10-14T19:41:26.854221Z","actor":"Eric Bowman","issue_id":"epicycles-3im.1","extra":{"field":"status","new_value":"closed","old_value":"in_progress","reason":"Reviewer PASS: 46 sources (42 verified), refs.bib parses, novelty assessment present"}}
