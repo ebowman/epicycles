@@ -28,15 +28,19 @@ error over the 10 largest analytic terms is 2e-10 / 5e-7 for p=3 and
 7e-11 / 1e-7 for p=4 (p=2 is ~3e-9 / 5e-4 or worse on the weak terms).
 Default p = 4 (Laskar's sin^8 window).  Note the sample-weighted fit is
 least accurate at the record ends where the window vanishes: the pointwise
-reconstruction error of the chain is ~5e-10 AU (max over the record).
+reconstruction error of the chain is ~5e-10 AU (max over the record) in that
+benchmark; on the Eros 100-yr series it is 7.6e-7 AU at the worst (record ends)
+but 3.1e-8 AU in the middle 80%, so report full-window and interior errors.
 
 Frequency refinement: scipy's bounded Brent has tolerance sqrt(eps)*|x|, i.e.
 ~1e-8 relative in an absolute frequency, so the search is done on the offset
 from the FFT peak, in nested windows (see :func:`_maximize`).  Without this
 the Earth line was off by 3e-9 relative and the least-squares step produced
 spurious nearby companion lines.  The optional ``sweeps`` backfitting passes
-(default 0) were found *not* to help (they can let two lines collapse onto one
-another, and are slow), so they are off by default.
+(re-maximising each frequency with all other terms projected out, aimed at
+greedy-order bias; default 0 = plain Laskar NAFF) were found *not* to help in
+benchmarks (they can let two lines collapse onto one another, and are slow),
+so they are off by default.
 
 Resolution limit (measured in tests/test_naff.py, see there for numbers):
 two lines are resolved only if separated by more than ~2*pi/T (T = record
@@ -44,8 +48,8 @@ length); with the Hann^p window the practical limit is roughly (p+1) bins
 (~(p+1)*2pi/T) before interference biases the frequencies.  Closer pairs are
 returned as one (merged, biased) line plus, at most, a poorly conditioned
 partner with large cancelling amplitudes; outputs stay finite.  Isolated
-well-separated lines are recovered to ~1e-11 relative frequency accuracy on
-100-period records (see test), limited by the flatness of the objective near
+well-separated lines are recovered to ~1e-10 relative frequency accuracy
+(measured 1.5e-10 .. 4.6e-10) on 100-period records (see test), limited by the flatness of the objective near
 its maximum (sqrt(machine eps) of a bin).
 
 Public API: :func:`naff_complex`, :func:`naff_vector`.
@@ -227,8 +231,9 @@ def naff_complex(z, t, K, window_p: int = 4, pad: int = 4, search_bins: float = 
     reaches rtol * ||z||_w or the basis is exhausted).  cond_tol: candidate
     basis functions whose Gram-Schmidt remainder is below cond_tol of their
     norm (indistinguishable from earlier ones) are rejected.  sweeps: number
-    of backfitting passes re-optimising every frequency with the others
-    projected out (removes greedy-order bias; 0 = plain Laskar NAFF).
+    of optional backfitting passes re-optimising every frequency with the
+    others projected out (aimed at greedy-order bias, but not found helpful and
+    can merge lines; default 0 = plain Laskar NAFF, see module docstring).
     Returns list of (omega [rad per unit of t], complex amplitude A at t[0]) in
     order of extraction (decreasing power); omega may be negative.
     """
@@ -253,6 +258,14 @@ def naff_vector(xyz, t, K, window_p: int = 4, pad: int = 4, search_bins: float =
     pair by :func:`expansion.ellipse_to_circles`.  t_ref defaults to t[0]
     (phases are re-referenced if another t_ref is given).  Result is sorted by
     decreasing radius and evaluable by :func:`expansion.evaluate_chain`.
+
+    Convention: each line w > 0 becomes the circle pair from
+    :func:`expansion.ellipse_to_circles`: a prograde circle (omega = +w) and a
+    retrograde circle (omega = -w), both with the ellipse-plane normal; the
+    constant term is an omega = 0 arm.  Note a circle (omega, normal) traces
+    the same curve as (-omega, -normal), so when comparing with analytic chains
+    canonicalise first (e.g. flip to omega > 0, negating normal and swapping
+    u/v, or compare via the sign of omega*normal).
     """
     xyz = np.asarray(xyz, dtype=float)
     if xyz.ndim != 2 or xyz.shape[1] != 3 or xyz.shape[0] != np.size(t):

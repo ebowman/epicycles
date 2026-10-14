@@ -33,6 +33,12 @@ class Epicycle:
     radius [AU] >= 0; omega [rad/day] signed; phase [rad] at ``t_ref`` [JD];
     normal, u, v: unit 3-vectors (ecliptic J2000), u x v = normal.
     source: "body" / "earth" / "" ; k: harmonic index (None if not applicable).
+
+    Sign ambiguity: the circle (omega, normal) traces the same curve as
+    (-omega, -normal); the sense of rotation is the sign of omega*normal.
+    naff.naff_vector (via ellipse_to_circles) emits per line a prograde circle
+    (omega = +w) and a retrograde one (omega = -w) sharing the ellipse normal;
+    canonicalise (e.g. omega > 0) before comparing chains.
     """
 
     radius: float
