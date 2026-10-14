@@ -11,3 +11,17 @@ __pycache__/
 *.pyc
 .pytest_cache/
 *.egg-info/
+
+# LaTeX (paper/)
+paper/*.aux
+paper/*.log
+paper/*.bbl
+paper/*.blg
+paper/*.out
+paper/*.toc
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
+paper/*Notes.bib
+paper/sections/*.aux
+paper/main.pdf

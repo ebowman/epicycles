@@ -1,0 +1,51 @@
+\documentclass[aps,pra,reprint,amsmath,amssymb,superscriptaddress,nofootinbib]{revtex4-2}
+\usepackage{graphicx}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,allcolors=blue!50!black]{hyperref}
+\graphicspath{{../figures/}}
+
+% Notation (see ../theory/derivation.md)
+\newcommand{\rgeo}{\bm{r}_{\mathrm{geo}}}
+\newcommand{\ii}{\mathrm{i}}
+\newcommand{\todo}[1]{\textbf{\textcolor{red}{TODO: #1}}}
+
+\begin{document}
+
+\title{Ptolemy's epicycles as the geocentric Fourier--Bessel expansion of Newtonian orbits:\\
+an explicit transform, error bounds, and a frequency-analysis demonstration}
+
+\author{Eric Bowman}
+\email{ebowman@boboco.ie}
+\affiliation{TODO: affiliation}
+
+\date{\today}
+
+\begin{abstract}
+% TODO: abstract written last, once Results are final.
+\todo{abstract, to be written after the Results section is final.}
+\end{abstract}
+
+\maketitle
+
+\input{sections/introduction}
+\input{sections/history}
+\input{sections/prior_work}
+\input{sections/theory}
+\input{sections/numerics}
+\input{sections/results}
+\input{sections/visualization}
+\input{sections/discussion}
+\input{sections/conclusion}
+
+\begin{acknowledgments}
+\todo{acknowledgments.}
+\end{acknowledgments}
+
+\appendix
+\input{sections/appendix_bessel}
+
+\bibliography{refs}
+
+\end{document}
