@@ -2,7 +2,7 @@
 \label{sec:discussion}
 
 \paragraph*{In what sense the hypothesis holds.}
-The statement ``planetary motion is a system of epicycles'' is true in three
+The statement ``planetary motion is a system of epicycles'' is true in four
 distinct and increasingly weak senses. (i)~For an unperturbed bound Kepler
 orbit the heliocentric position is \emph{exactly} a Fourier series in the
 mean anomaly, uniformly convergent for every $e<1$, and each term, a vector
@@ -17,21 +17,31 @@ are no cross terms at combination frequencies in the Cartesian geocentric
 vector, because the difference is linear; numerically the amplitudes at
 combination frequencies are $10^{-16}$ to $10^{-15}$ relative, with a single
 line at $8.4\times10^{-11}$, and the out-of-mask $\sin^8$ window leakage
-is $3\times10^{-8}$. (iii)~For
-perturbed bounded motion near an integrable one, the motion is
-quasi-periodic and a finite set of epicycles recovered by frequency analysis
-represents it over a finite window; our Ceres experiment shows this, with
-interior errors that decrease monotonically with the number of lines, and
-also shows its price, namely window-edge errors that do not.
+is $3\times10^{-8}$. (iii)~On
+an analytic invariant torus of a near-integrable system, under the
+assumptions of Eq.~\eqref{eq:quasi}, the position is again exactly and
+uniformly a (multi-frequency) epicycle sum for all time; KAM theory supplies
+such tori only under additional hypotheses and for a subset of initial
+conditions, and does not show that a given body lies on one. (iv)~For any other
+trajectory, such as our N-body Ceres integration, a finite set of epicycles
+recovered by frequency analysis is an empirical approximation on a finite
+window. The Ceres experiment demonstrates reconstruction accuracy there, with
+interior errors that decrease monotonically with the number of lines, and shows
+its price, namely window-edge errors that do not; it does not demonstrate that
+the motion is quasi-periodic.
 
-The representation fails, or is only finite-time, in the cases flagged in
-the theory. For unbound orbits ($e\ge1$) the series does not exist. For
+The representation is exact only in cases (i)--(iii); in the cases flagged in
+the theory it fails, or is only a finite-window approximation. For unbound orbits ($e\ge1$) the series does not exist. For
 chaotic motion the frequencies drift and a fixed set of circles is valid
 only on a finite time. Over long windows secular drift of the elements
-limits any fixed chain, and in all cases the resolution of two lines is
-limited to about $2\pi/T$ for a record of length $T$. High eccentricity is
-also expensive: the number of harmonics grows as $(1-e)^{-3/2}$, about $450$ per orbit for
-$10^{-9}$~AU at $e=0.89$. Finally, the Cartesian bound does not bound the
+limits any fixed chain, and in practice the resolution of two lines is
+set by a scale of about $2\pi/T$ for a record of length $T$ (a conditioning
+scale, not an absolute limit). High eccentricity is
+also expensive: about $450$ harmonics per orbit are needed for
+$10^{-9}$~AU at $e=0.89$ (sampled). The order certified by the bound grows as
+$(1-e)^{-3/2}$, but this is not the asymptotic behaviour of the actual minimal
+order, which tends to a finite limit at fixed tolerance as $e\to1$
+(Table~\ref{tab:nearpar}). Finally, the Cartesian bound does not bound the
 angular error near close approaches, where it scales as $1/\Delta$.
 
 \paragraph*{``Epicycles can fit anything.''}

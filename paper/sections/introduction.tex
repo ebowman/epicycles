@@ -32,8 +32,9 @@ Fourier series in the mean anomaly with Bessel-function coefficients
 position gives a sum of two such series, one for the body and one
 for the Earth, which is an epicycle system in which every radius and rate is
 a function of $(a,e,i,\omega,\Omega,M_0)$ of the two orbits. For perturbed
-motion the representation is no longer exact, but near-integrable bounded
-motion is quasi-periodic, and its frequencies and amplitudes can be
+motion the representation is exact only on analytic invariant tori (whose
+existence for a given trajectory is not guaranteed); for other trajectories it is
+an empirical finite-window approximation, whose frequencies and amplitudes can be
 recovered numerically by Laskar's frequency analysis
 \cite{Laskar1990,Laskar1992,Laskar1999}.
 
@@ -66,9 +67,10 @@ least-squares-fitted six-element Kepler orbit and of a mean-semi-major-axis
 Kepler orbit; NAFF clearly beats the fitted Kepler orbit only for
 $K\gtrsim50$ lines and only in the interior of the window, where edge effects
 dominate the full window.
-\item A precise statement of validity: the representation is accurate for
-bounded quasi-periodic motion, holds only over finite times for chaotic
-motion, and does not apply to unbound orbits.
+\item A precise statement of validity: the representation is exact for Kepler motion and
+on analytic invariant tori, an empirical finite-window approximation for other
+perturbed motion (including chaotic motion), and does not apply to unbound
+orbits.
 \end{enumerate}
 In addition we provide an open-source interactive three-dimensional
 visualization of the resulting epicycle chains as a pedagogical tool. We

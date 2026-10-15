@@ -146,7 +146,11 @@ the convergence of such expansions. It is the radius of convergence of the
 Lagrange power series of $E(M;e)$ in powers of $e$ at fixed $M$: continued
 to complex $e$, $E(M;e)$ has branch points, located where
 $1-e\cos E=0$ at complex $E$, the nearest of which lies at $|e|=0.6627$, and
-a power series cannot converge beyond the nearest singularity. It does not
+a power series cannot converge beyond the nearest singularity. The value
+$0.6627$ is a worst-case statement over the mean anomaly: it is the largest $e$
+for which the series converges for \emph{every} $M$, not the radius of
+convergence at each fixed $M$ (at $M=0$ and $M=\pi$, $E=M$ identically and the
+series is trivial). It does not
 limit the Fourier series in $M$ at fixed real $e$, whose coefficients decay
 geometrically at rate $\rho(e)<1$ for \emph{all} $e<1$
 (Prop.~\ref{prop:conv}). The two expansions order the terms differently
@@ -193,6 +197,28 @@ radius $r_+$ at rate $+\omega$ and one of radius $r_-$ at rate $-\omega$
 is an ellipse with semi-axes $r_++r_-$ and $|r_+-r_-|$.
 \end{proof}
 
+The Kepler case has orthogonal ellipse axes along $\mathbf P$ and $\mathbf Q$.
+For a general complex vector amplitude $\mathbf A\in\mathbb C^3$ at rate
+$\omega$ (as returned by frequency analysis, or for any harmonic in
+Eq.~\eqref{eq:quasi}), $\mathrm{Re}(\mathbf Ae^{\ii\omega t})=\mathsf B\,
+(\cos\omega t,\sin\omega t)^{\mathsf T}$ with the real $3\times2$ matrix
+$\mathsf B=[\mathrm{Re}\,\mathbf A,\,-\mathrm{Im}\,\mathbf A]$. The curve is
+an ellipse centred at the origin. Let $\mathsf B=\sum_{j=1,2}\sigma_j\mathbf u_j
+\mathbf v_j^{\mathsf T}$ be its singular value decomposition, with
+$\sigma_1\ge\sigma_2\ge0$, and choose the signs of $(\mathbf u_2,\mathbf v_2)$
+so that $\det[\mathbf v_1\ \mathbf v_2]=+1$ (this leaves $\mathsf B$
+unchanged). Then, for a phase $\phi$ fixed by $\mathbf v_1$,
+$\mathrm{Re}(\mathbf Ae^{\ii\omega t})=\sigma_1\mathbf u_1\cos(\omega t+\phi)
++\sigma_2\mathbf u_2\sin(\omega t+\phi)$, which is the sum of a prograde circle
+of radius $(\sigma_1+\sigma_2)/2$ and a retrograde circle of radius
+$(\sigma_1-\sigma_2)/2$ in the plane spanned by $\mathbf u_1,\mathbf u_2$
+(senses taken about $\mathbf u_1\times\mathbf u_2$). A linearly polarised
+harmonic ($\sigma_2=0$) is two circles of equal radius $\sigma_1/2$, and a
+circle has $\sigma_1=\sigma_2$. Proposition~\ref{prop:twocircles} is the
+special case of Kepler motion, where the ellipse axes are known in advance (along
+$\mathbf P$ and $\mathbf Q$) and no decomposition is needed. This is the conversion used for the NAFF lines in
+Sec.~\ref{sec:numerics}.
+
 For a single Kepler body all circles lie in the same orbital plane, so
 Prop.~\ref{prop:twocircles} is the planar statement of the previous
 subsections written in the basis $\mathbf P,\mathbf Q$. Inclination matters
@@ -217,8 +243,8 @@ phases of the amplitudes. By Eq.~\eqref{eq:vecterm},
 
 \begin{proposition}[Geocentric epicycle chain]
 \label{prop:geo}
-(i) The Cartesian spectrum of $\rgeo$ is exactly the union of the two harmonic
-ladders $\{kn_b\}\cup\{jn_\oplus\}$; there are no combination frequencies
+(i) The Cartesian spectrum of $\rgeo$ is \emph{contained in} the union of the
+two harmonic ladders $\{kn_b\}\cup\{jn_\oplus\}$; there are no combination frequencies
 $kn_b\pm jn_\oplus$ in the Cartesian vector (they appear only in nonlinear
 functions of it such as ecliptic longitude, distance or angular rate).
 (ii) Eq.~\eqref{eq:geo} is a uniformly and absolutely convergent trigonometric
@@ -233,11 +259,16 @@ are integer multiples of $\nu$, and $\rgeo$ is periodic with period
 T=\frac{2\pi}{\nu}=\frac{2\pi p}{n_b}=\frac{2\pi q}{n_\oplus},
 \label{eq:period}
 \end{equation}
-which is the minimal period whenever the $k=1$ terms of both bodies are
-nonzero (then $p\nu$ and $q\nu$ are both present and $\gcd(p,q)=1$).
+which is the minimal period whenever the $k=1$ terms of both bodies survive in
+Eq.~\eqref{eq:geo} (then $p\nu$ and $q\nu$ are both present and $\gcd(p,q)=1$).
+In general the minimal period is set by the frequencies that actually survive
+the subtraction.
 \end{proposition}
 \begin{proof}
-(i) is linearity of the difference. (ii) follows from Eq.~\eqref{eq:ckbound},
+(i) is linearity of the difference. Equality can fail: a circular orbit ($e=0$)
+has no harmonics above $k=1$, and if the two orbits coincide the difference
+vanishes identically, so coefficients vanish or cancel and the spectrum can be a
+proper subset. (ii) follows from Eq.~\eqref{eq:ckbound},
 which makes both ladders absolutely summable. (iii) is the arithmetic
 above; note that $2\pi q/n_b=(q/p)T$ is a period only when $p=1$.
 \end{proof}
@@ -331,18 +362,56 @@ triangle inequality.
 
 As $e\to0$ the bound is $O(\rho^{N+1}/e)\to0$ for $N\ge1$ (with
 $\varepsilon_0=a$ at $e=0$, the dropped circle). The number of harmonics
-needed for tolerance $\mathrm{tol}$ scales as
-$N_{\min}\sim\ln(1/\mathrm{tol})/\ln(1/\rho)$ up to logarithmic factors, and
-near $e\to1$ as $N\propto(1-e)^{-3/2}$, so high eccentricity is costly.
+\emph{certified} by the bound for tolerance $\mathrm{tol}$ (position error
+$\sup_M|z-z_N|/a<\mathrm{tol}$, i.e.\ tolerance relative to $a$) scales as
+$N_{\rm cert}\sim\ln(1/\mathrm{tol})/\ln(1/\rho)$ up to logarithmic factors, and
+near $e\to1$ as $N_{\rm cert}\propto(1-e)^{-3/2}$, because
+$\ln(1/\rho)\approx(2\delta)^{3/2}/3$. This is the order that Eq.~\eqref{eq:eps}
+\emph{guarantees} as $\rho\to1$; it is a statement about the geometric decay
+scale of the bound, not about the smallest order that actually meets the
+tolerance. The two differ qualitatively as $e\to1$. At $e=1$ the coefficients
+tend to $c_{\pm k}\to J_k'(k)/k$ (Eqs.~\eqref{eq:ck} and \eqref{eq:cmk} with
+$s=0$), and the uniform Bessel expansions \cite{DLMF} give
+$J_k'(k)\simeq C k^{-2/3}$ with
+$C=3^{1/6}\Gamma(2/3)/(2^{1/3}\pi)\approx0.41085$. The coefficients thus decay
+only algebraically, $c_{\pm k}\simeq Ck^{-5/3}$, and the limiting position tail
+is $\sum_{|k|>N}|c_k|\simeq3CN^{-2/3}$. At fixed tolerance relative to $a$ the
+actual minimal order therefore tends to a \emph{finite} limit, $N_{\rm
+actual}(\mathrm{tol})\to(3C/\mathrm{tol})^{3/2}$ as $e\to1$, rather than
+diverging as $(1-e)^{-3/2}$ (the limit itself grows as $\mathrm{tol}^{-3/2}$).
+The asymptotic estimates are those of the limiting coefficients; the numbers in
+Table~\ref{tab:nearpar} are evaluated directly from the exact coefficients.
 Table~\ref{tab:nneeded} compares the bound with the smallest $N$ actually
-needed (true $\sup_M|z-z_N|/a$ on a $3001$-point grid on $[0,\pi]$, the error
-being symmetric under $M\to-M$); the bound overestimates $N$ by at most a
-factor of about $1.5$ in this range, and was checked to hold for every $N$
-from $0$ to $800$ (to $6000$ for $e=0.89$).
+needed (the sampled maximum of $|z-z_N|/a$ on a $3001$-point grid on $[0,\pi]$,
+the error being symmetric under $M\to-M$); the bound overestimates $N$ by at
+most a factor of about $1.5$ in this range, and was checked to hold for every
+$N$ from $0$ to $800$ (to $6000$ for $e=0.89$).
+
+Table~\ref{tab:nearpar} extends the comparison towards $e\to1$. It uses
+$\sup_M|z-z_N|/a$ with the tolerance held fixed relative to $a$. The
+coefficients $c_{\pm k}$ were evaluated numerically up to $k_{\max}$ between $10^{6}$ and
+$10^{7}$ and found non-negative at every $k$ examined (the asymptotics $c_{\pm k}\simeq Ck^{-5/3}>0$
+suggest this persists beyond; we do not prove it). Given non-negativity, every
+term of the tail is largest at $M=0$ (periapsis), so the sampled maximum and the
+tail at $M=0$ coincide, and in the cases computed the sampled maximum was
+attained at $M\approx0$ (to within the sampling resolution near $M=0$). We use
+this identification to compute $N_{\rm actual}$ from the coefficient sum. It is a
+numerical observation with an asymptotic argument, not a theorem.
+Entries marked with an asterisk are extrapolated with the limiting law
+$3CN^{-2/3}$, because the tail had not reached the tolerance at $k_{\max}$; they
+are approximate estimates, not counts. At tolerance
+$10^{-2}a$ the minimal order is $1058$ at $e=0.999$, $1327$ at $0.9999$ and $1366$
+at $0.999999$, approaching the limit $\approx1367$ at $e=1$, whereas
+$N_{\rm cert}$ grows by a factor of about $32$ per decade of $1-e$ and exceeds
+$4.7\times10^{6}$ already at $e=0.9999$. At $10^{-6}a$ the same saturation is
+expected at $\approx1.4\times10^{9}$, far beyond any practical chain.
+Truncation to a given absolute error at high $e$ is thus costly, but the
+$(1-e)^{-3/2}$ law should not be read as the true asymptotic cost.
 
 \begin{table}[tb]
-\caption{Harmonics $N$ needed for $\sup_M|z-z_N|/a<\mathrm{tol}$: observed,
-and from the bound~\eqref{eq:eps}.}
+\caption{Harmonics $N$ needed for the sampled maximum of $|z-z_N|/a$ over a
+fine $M$ grid to fall below tol (observed), and from the tail-sum
+bound~\eqref{eq:eps}.}
 \label{tab:nneeded}
 \begin{ruledtabular}
 \begin{tabular}{lcccccc}
@@ -358,6 +427,28 @@ $e$ & $\rho(e)$ & \multicolumn{2}{c}{obs.} & \multicolumn{2}{c}{bound} \\
 \end{ruledtabular}
 \end{table}
 
+\begin{table}[tb]
+\caption{Near-parabolic limit: harmonics $N$ certified by the
+bound~\eqref{eq:eps} versus the minimal $N$ for which the sampled maximum of $|z-z_N|/a$
+over a fine $M$ grid is at most tol (relative to $a$). $^*$: extrapolated with $3CN^{-2/3}$ (approximate).
+At $e=1$ the bound is infinite.}
+\label{tab:nearpar}
+\begin{ruledtabular}
+\begin{tabular}{lrrrr}
+ & \multicolumn{2}{c}{tol $=10^{-2}$} & \multicolumn{2}{c}{tol $=10^{-6}$}\\
+$e$ & $N_{\rm cert}$ & $N_{\rm actual}$ & $N_{\rm cert}$ & $N_{\rm actual}$ \\
+\hline
+0.5 & 10 & 6 & 29 & 23 \\
+0.89 & 125 & 38 & 350 & 230 \\
+0.99 & 4,744 & 364 & 13,375 & 6,564 \\
+0.999 & 150,534 & 1,058 & 424,558 & 146,581 \\
+0.9999 & 4,761,856 & 1,327 & 13,430,703 & 2,852,676 \\
+0.999999 & $4.76\times10^{9}$ & 1,366 & $1.34\times10^{10}$ & $1.22\times10^{9\,*}$ \\
+1 & --- & 1,367 & --- & $1.37\times10^{9\,*}$ \\
+\end{tabular}
+\end{ruledtabular}
+\end{table}
+
 A position error $\varepsilon$ translates into an angular error
 $\lesssim\varepsilon/\Delta_{\min}$, where $\Delta_{\min}$ is the minimum
 Earth--body distance (about $0.37$~AU for Mars at a perihelic opposition).
@@ -366,11 +457,18 @@ not against $a$, and diverge for close approaches. The bound~\eqref{eq:eps} is
 monotone in $N$; the realised error of a particular truncated set need not be
 at small $N$.
 
-\subsection{Perturbed motion: quasi-periodicity, KAM and frequency analysis}
+\subsection{Perturbed motion: invariant tori, KAM and frequency analysis}
 \label{sec:th-pert}
 
-Mutual perturbations break the exactness of the preceding subsections but, for
-the regular part of the Solar System, not their form. Consider a near-integrable
+Mutual perturbations break the exactness of the preceding subsections. Three
+cases should be kept apart. (i)~\emph{Exact Kepler expansions}:
+Props.~\ref{prop:series} and~\ref{prop:geo} and Thm.~\ref{thm:trunc} hold
+uniformly for all time. (ii)~\emph{Exact expansions on analytic invariant
+tori}: under the assumptions stated for Eq.~\eqref{eq:quasi} below, the
+representation is exact and uniformly convergent for all time
+\cite{Laskar2003}. (iii)~\emph{Empirical finite-window approximations} of
+trajectories not known to lie on such a torus, obtained by frequency analysis.
+Consider a near-integrable
 Hamiltonian $H=H_0(\mathbf I)+\mu H_1(\mathbf I,\boldsymbol\theta)$ in
 action--angle variables.
 
@@ -378,11 +476,14 @@ action--angle variables.
 precession and node-regression frequencies $g_i,s_i$ to the mean motions $n_j$,
 replacing the fixed $(\omega,\Omega)$ of Subsec.~\ref{sec:th-3d} by slowly
 rotating frames \cite{MurrayDermott1999,BrouwerClemence1961}. The
-Kolmogorov--Arnold--Moser (KAM) theorem guarantees that, for sufficiently
-small $\mu$, a large measure of initial conditions with non-resonant
-(Diophantine) frequencies lies on invariant tori carrying quasi-periodic
-motion \cite{Arnold1963a,Arnold1963b,Arnold1989}; the epicycle reading of this
-is due to Gallavotti \cite{Gallavotti2001}. On such a torus with $d$
+Kolmogorov--Arnold--Moser (KAM) theorem states that, under non-degeneracy
+hypotheses on $H_0$ and for sufficiently small $\mu$, a large measure of
+initial conditions with non-resonant (Diophantine) frequencies lies on
+\emph{surviving} invariant tori carrying quasi-periodic motion
+\cite{Arnold1963a,Arnold1963b,Arnold1989}; the epicycle reading of this is due
+to Gallavotti \cite{Gallavotti2001}. KAM does not establish that an arbitrary
+bounded trajectory, or any particular one such as our Ceres integration, lies on
+such a torus. On an invariant torus with $d$
 rationally independent frequencies $\boldsymbol\omega$, assuming analytic
 dependence so that the embedding has absolutely summable Fourier coefficients,
 \begin{gather}
@@ -390,7 +491,8 @@ dependence so that the embedding has absolutely summable Fourier coefficients,
 \sum_{\mathbf m}|\mathbf A_{\mathbf m}|<\infty,
 \label{eq:quasi}
 \end{gather}
-a Bohr almost-periodic function \cite{Bohr1925,Laskar1993,Laskar2003}. Each
+a Bohr almost-periodic function \cite{Bohr1925,Laskar1993,Laskar2003}, so the
+expansion is exact and uniformly convergent for all $t$ (case~ii). Each
 term is a uniformly rotating vector, i.e.\ an epicycle, but the frequencies are
 integer combinations of $\boldsymbol\omega$ (for the Solar System, the $n_j$,
 $g_i$, $s_i$ and a few resonance arguments \cite{Laskar1990,Laskar2003}), not
@@ -408,29 +510,37 @@ repeat, with Gram--Schmidt orthogonalisation of the basis (Sec.~\ref{sec:numeric
 The analytic coefficients of the previous subsections give a prior against which
 the NAFF output can be validated.
 
-\paragraph*{Limits.} The expansion is exact and uniform in time only for bounded
-unperturbed Kepler motion. In general:
+\paragraph*{Limits.} Exactness for all time holds in cases (i) and (ii). For
+trajectories of case (iii), and for the use of case (ii) on the real Solar System,
+the following apply. The Ceres experiment of Sec.~\ref{sec:results} measures the
+reconstruction accuracy of a finite-window fit; it does not demonstrate that the
+motion is quasi-periodic.
 \begin{enumerate}
 \item \emph{Chaos.} The inner planets are chaotic with a Lyapunov time of about
-5~Myr \cite{Laskar1990}; quasi-periodicity then holds only approximately on a
-finite window, with slowly drifting frequencies \cite{FuLaskar2019}.
-``Arbitrary precision for all time'' is false for perturbed motion.
+5~Myr \cite{Laskar1990}; a quasi-periodic representation then holds at best
+approximately on a finite window, with slowly drifting frequencies \cite{FuLaskar2019}.
+``Arbitrary precision for all time'' is not available for such motion.
 \item \emph{Finite windows.} Over a record of length $T$ the representation can be
 made accurate to the NAFF resolution; extrapolation outside the fitted window
 degrades with the drift rate.
 \item \emph{Frequency resolution.} Lines separated by less than $\sim2\pi/T$
-cannot be separated, so near-resonant combinations need a longer record and the
-number of terms needed grows with $T$.
+are in practice hard to separate: $2\pi/T$ is a practical resolution and
+conditioning scale for the method, not an impossibility threshold (a fit that
+imposes known frequencies can separate closer lines at the price of conditioning).
+Near-resonant combinations therefore need a longer record, and the number of
+terms needed grows with $T$.
 \item \emph{Near-resonances.} KAM tori are destroyed near resonances and the
-measure of surviving tori tends to one only as $\mu\to0$. For the planets
+measure of surviving tori tends to one only as $\mu\to0$; whether the actual
+planetary orbits lie on surviving tori is not implied by the theorem. For the planets
 $\mu\sim10^{-3}$; the Jupiter--Saturn near-resonance (the Great Inequality) is a
 long-period term, not a breakdown, but it is the largest perturbation line.
 \item \emph{Unbound orbits.} For $e\ge1$ the orbit is not bounded and $z(M)$ is
 not periodic; the series of Prop.~\ref{prop:series} does not exist.
 Quasi-periodicity is a property of bounded motion. A hyperbolic flyby can be
 matched on any finite window by trigonometric polynomials (Weierstrass) but with
-no dynamical meaning or extrapolation. For $e\to1^-$ the series converges, but
-with $N\propto(1-e)^{-3/2}$.
+no dynamical meaning or extrapolation. For $e\to1^-$ the series converges; the order certified by
+Eq.~\eqref{eq:eps} grows as $(1-e)^{-3/2}$, while the actual minimal order at
+fixed tolerance tends to a finite limit (Subsec.~\ref{sec:th-trunc}).
 \item \emph{The Earth is not a Kepler point either.} Its orbital elements vary
 secularly, the Earth--Moon barycentre (not the Earth's centre) moves on the
 Kepler-like orbit, and the Sun is displaced from the barycentre by $\sim0.005$~AU

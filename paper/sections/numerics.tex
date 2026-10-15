@@ -87,7 +87,16 @@ sequential amplitudes without error accumulation.
 \end{enumerate}
 Each line $\omega>0$ with complex vector amplitude $\mathbf A$ is the ellipse
 $\mathrm{Re}(\mathbf Ae^{\ii\omega t})$ and is converted to a prograde and a
-retrograde circle by the construction of Prop.~\ref{prop:twocircles}.
+retrograde circle. Because a fitted $\mathbf A$ is a general complex vector, its
+ellipse need not have axes along known directions, so we project $\mathbf A$ onto
+an orthonormal basis $(\mathbf u,\mathbf v)$ of the plane spanned by
+$\mathrm{Re}\,\mathbf A$ and $\mathrm{Im}\,\mathbf A$ and read the prograde and
+retrograde radii from $\alpha=(\mathbf A\!\cdot\!\mathbf u+\ii\mathbf A\!\cdot\!\mathbf v)/2$ and
+$\beta=(\mathbf A\!\cdot\!\mathbf u-\ii\mathbf A\!\cdot\!\mathbf v)/2$ as $|\alpha|$, $|\beta|$. This is
+equivalent to the singular value decomposition of
+$[\mathrm{Re}\,\mathbf A,-\mathrm{Im}\,\mathbf A]$, whose radii are
+$(\sigma_1\pm\sigma_2)/2$ (Subsec.~\ref{sec:th-3d}); Prop.~\ref{prop:twocircles}
+is the Kepler special case.
 
 \paragraph*{Measured accuracy.} Because the window vanishes at the record ends,
 the weighted fit is least accurate there, and we report both full-window and
@@ -101,8 +110,9 @@ on $100$-period synthetic records are recovered to relative frequency accuracy
 $1.5\times10^{-10}$--$4.6\times10^{-10}$, limited by the flatness of the
 objective near its maximum. On the $100$-yr geocentric series of Eros the
 reconstruction error is $7.6\times10^{-7}$~AU at worst (record ends) and
-$3.1\times10^{-8}$~AU in the interior. Two lines are resolved only if separated
-by more than $\sim2\pi/T$ ($T$ the record length); with the Hann$^p$ window the
+$3.1\times10^{-8}$~AU in the interior. The scale $2\pi/T$ ($T$ the record length) is a
+practical resolution and conditioning scale, not a sharp impossibility threshold;
+with the Hann$^p$ window the
 practical limit is roughly $(p+1)$ bins before interference biases the
 frequencies, and closer pairs are returned as one merged, biased line (plus at
 most a poorly conditioned partner) without failure. We do not quote an
@@ -159,7 +169,7 @@ in AU. We report the sup norm $\max_nd_n$ and the RMS $(\langle d_n^2\rangle)^{1
 over the full window, and the same two quantities over the \emph{interior} 80\%
 of the samples (indices $0.1N_s$ to $0.9N_s$), which excludes the window-edge
 effect described above. For the analytic bound (Table~\ref{tab:nneeded}) the
-error is the true $\sup_M|z-z_N|/a$ on a grid in $M$.
+error is the sampled maximum of $|z-z_N|/a$ over a grid in $M$.
 
 \subsection{Code availability}
 \label{sec:code}
