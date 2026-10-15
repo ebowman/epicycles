@@ -36,18 +36,22 @@ export function buildInfo(root: HTMLElement): InfoPanel {
     "Seen from Earth, a body sits at the vector difference of two heliocentric Kepler orbits. The right view draws exactly this path (green) and the epicycle chain that reproduces it.",
     FORMULAS.geo);
   section(root, "Fourier series = epicycles",
-    "A Kepler orbit is periodic in the mean anomaly M, so z = x + iy has a Fourier series. Each term is a circle of radius a|c_k| turning at k times the mean motion, riding on the previous one. Truncating at |k| <= N gives the N-epicycle model; N=1 is a 6-circle chain; Ptolemy's model is the 2-circle k=+1 subset (the Ptolemaic checkbox).",
+    "A Kepler orbit is periodic in the mean anomaly M, so z = x + iy has a Fourier series. Each term is a circle of radius a|c_k| turning at k times the mean motion, riding on the previous one. Truncating at |k| <= N gives 2N rotating circles per orbit plus a static offset (the k=0 term); for body and Earth together N=1 is 4 rotating circles plus an offset. The circular two-term approximation (paper model A, the Ptolemaic checkbox) keeps only the k=+1 deferent and k=+1 epicycle.",
     FORMULAS.fourier);
   section(root, "Bessel coefficients",
-    "The coefficients are closed-form in Bessel functions of the first kind, so no numerical fitting is needed. Their decay is set by the eccentricity e: Mars (e = 0.09) needs a few circles, Phaethon (e = 0.89) needs hundreds.",
+    "The coefficients are closed-form in Bessel functions of the first kind, so no numerical fitting is needed. Their decay is set by the eccentricity e: Mars (e = 0.09) needs a few circles, Phaethon (e = 0.89) needs hundreds. The bound in the paper certifies an order growing like (1-e)^{-3/2}; the actual minimal order is smaller and saturates as e approaches 1.",
     FORMULAS.bessel);
   section(root, "Why perturbed orbits need NAFF",
     "With planetary perturbations the motion is no longer periodic but almost periodic: a sum of incommensurate frequencies. Fitting them from a finite time window (NAFF, Hann taper) gives a finite circle list that is accurate inside the window but not beyond it.",
     FORMULAS.naff);
   const p = document.createElement("p"); p.className = "paperlink";
   p.append("Full derivation: ");
-  const code = document.createElement("code"); code.textContent = "see paper (paper/main.pdf in repo)";
-  p.append(code);
+  const a = document.createElement("a");
+  a.href = "https://ebowman.github.io/epicycles/paper.pdf"; a.target = "_blank"; a.rel = "noopener";
+  a.textContent = "Geocentric epicycle expansions of Keplerian orbits (PDF)";
+  const r = document.createElement("a");
+  r.href = "https://github.com/ebowman/epicycles"; r.target = "_blank"; r.rel = "noopener"; r.textContent = "source repository";
+  p.append(a, " | ", r);
   root.append(p);
   return {
     setMode(note, rows, windowText) {

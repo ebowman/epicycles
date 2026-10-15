@@ -31,6 +31,7 @@ jobs:
         working-directory: web
       - run: npm run build:single
         working-directory: web
+      - run: cp paper/main.pdf web/dist-single/paper.pdf
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

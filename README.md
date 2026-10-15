@@ -1,12 +1,12 @@
 # epicycles
 
-Newtonian orbits as exact epicycle (Fourier) systems: a paper, a Python reference implementation, and an interactive 3D viewer.
+Companion code for the paper "Geocentric epicycle expansions of Keplerian orbits: explicit coefficients, error bounds, and frequency analysis": a paper, a Python reference implementation, and an interactive 3D viewer.
 
-**Live demo:** https://ebowman.github.io/epicycles/ - paper: [paper/main.pdf](paper/main.pdf). `npm --prefix web run build:single` produces one self-contained `web/dist-single/index.html` that works offline from `file://`.
+**Live demo:** https://ebowman.github.io/epicycles/ - paper: https://ebowman.github.io/epicycles/paper.pdf (source in `paper/`). `npm --prefix web run build:single` produces one self-contained `web/dist-single/index.html` that works offline from `file://`.
 
 ## Hypothesis and verdict
 
-Hypothesis: Ptolemaic epicycles are Fourier-type series, so any bounded classical Newtonian trajectory seen from Earth can be written as a system of epicycles. Verdict: supported, with qualifications. A bound Kepler orbit is an exact Fourier series in the mean anomaly with Bessel-function coefficients, each term being a pair of counter-rotating circles. The geocentric position of a body (`r_body - r_earth`) is therefore an exact, uniformly convergent sum of two epicycle families with Bessel-coefficient radii. It is Bohr almost-periodic, not a single Fourier series. The Ptolemaic model is the leading truncation (a 2-circle, k=+1 model; for Mars it reproduces the retrograde loops with longitude errors up to 33 degrees). Perturbed (N-body) motion is quasi-periodic and is recovered on finite windows by numerical frequency analysis (NAFF); the representation fails for unbound orbits and long-term chaos. The core idea is classical (Hanson 1960, Gallavotti 2001, Scholz 2022 and others; see `research/lit-review.md`). The contribution here is the explicit, quantitative three-dimensional geocentric construction. See `paper/main.tex` for the abstract and results.
+Hypothesis: Ptolemaic epicycles are Fourier-type series, so any bounded classical Newtonian trajectory seen from Earth can be written as a system of epicycles. Verdict: supported, with qualifications. A bound Kepler orbit is an exact Fourier series in the mean anomaly with Bessel-function coefficients, each term being a pair of counter-rotating circles. The geocentric position of a body (`r_body - r_earth`) is therefore an exact, uniformly convergent sum of two epicycle families with Bessel-coefficient radii. It is Bohr almost-periodic, not a single Fourier series. The Ptolemaic model is the circular two-term approximation (model A: a 2-circle, k=+1 model; for Mars it reproduces the retrograde loops with longitude errors up to 33 degrees). Perturbed (N-body) motion is quasi-periodic and is recovered on finite windows by numerical frequency analysis (NAFF); the representation fails for unbound orbits and long-term chaos. The core idea is classical (Hanson 1960, Gallavotti 2001, Scholz 2022 and others; see `research/lit-review.md`). The contribution here is the explicit, quantitative three-dimensional geocentric construction. See `paper/main.tex` for the abstract and results.
 
 ## Layout
 
@@ -59,7 +59,7 @@ npm --prefix web run preview                     # serve the production build
 | `zoom=opp` | zoom to opposition |
 | `circles=0` | hide epicycle circles |
 | `info=0` | hide the explanatory panel |
-| `ptolemaic=1` | use the 2-circle Ptolemaic model |
+| `ptolemaic=1` | use the circular two-term (Ptolemaic) approximation |
 | `fourier=1` | Fourier-series view |
 | `error=1` | show error versus the reference |
 
@@ -74,4 +74,14 @@ Example: `http://localhost:5173/?preset=ptolemy&paused=1`
 - NAFF reconstructions suffer window-edge effects; the full-window error is edge-limited.
 - In NAFF mode the reference curve is the full NAFF reconstruction, not N-body truth.
 - 60 fps on a real GPU is unverified.
-- Truncation orders needed grow rapidly at high eccentricity (hundreds of harmonics at e = 0.89).
+- Truncation orders needed grow rapidly at high eccentricity (hundreds of harmonics at e = 0.89). The paper's bound certifies an order growing like (1-e)^{-3/2}; the actual minimal order is smaller and saturates as e approaches 1.
+- Circle counts in the viewer are series terms: order N gives 2N rotating circles per orbit plus a static k=0 offset.
+
+## License
+
+- Code (`epicycles/`, `experiments/`, `tests/`, `web/`): MIT, see `LICENSE`.
+- Paper, figures, theory, research prose, and docs (`paper/`, `figures/`, `theory/`, `research/`, `docs/`): CC BY 4.0, see `LICENSE-CC-BY-4.0`.
+
+## Citation
+
+See `CITATION.cff`. A v1.0 release is archived on Zenodo (DOI assigned at release).

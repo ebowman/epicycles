@@ -1,0 +1,10 @@
+{
+  "title": "Geocentric epicycle expansions of Keplerian orbits: explicit coefficients, error bounds, and frequency analysis",
+  "upload_type": "software",
+  "creators": [{"name": "Bowman, Eric"}],
+  "license": "MIT",
+  "description": "Python reference implementation, paper source, and interactive web viewer for exact geocentric epicycle (Bessel-Fourier) expansions of Keplerian orbits, with truncation error bounds and NAFF frequency analysis of perturbed motion.",
+  "related_identifiers": [
+    {"relation": "isSupplementTo", "identifier": "https://ebowman.github.io/epicycles/", "scheme": "url"}
+  ]
+}
