@@ -263,6 +263,31 @@ def fig_perturbed_ceres(d: dict) -> dict:
 
 
 # ---------------------------------------------------------------- exports
+def fig_ceres_residual_time() -> dict:
+    """Geocentric error vs time over the 200-yr window (series from perturbed_ceres.py)."""
+    path = ROOT / "experiments" / "out" / "perturbed_ceres_residuals.npz"
+    if not path.exists():
+        raise FileNotFoundError(f"{path} missing: run `uv run python experiments/perturbed_ceres.py` first")
+    z = np.load(path)
+    yr = (z["t"] - z["t"][0]) / 365.25
+    fig, ax = plt.subplots(figsize=(W1, 2.9))
+    ax.axvspan(yr[0], yr[int(0.1 * len(yr))], color="0.88", lw=0)
+    ax.axvspan(yr[int(0.9 * len(yr))], yr[-1], color="0.88", lw=0)
+    for key, col, lab, ls in (("naff_helio_K50", OI["sky"], "NAFF $K=50$", "-"),
+                              ("naff_helio_K200", OI["blue"], "NAFF $K=200$", "-"),
+                              ("kepler_helio_unweighted", OI["verm"], "Kepler fit, unweighted", "--"),
+                              ("kepler_helio_hann", OI["green"], "Kepler fit, Hann-weighted", "--")):
+        ax.semilogy(yr, np.maximum(z[key], 1e-16), color=col, ls=ls, lw=0.6, label=lab)
+    ax.set_xlim(yr[0], yr[-1])
+    ax.set_xlabel("time from epoch [yr]")
+    ax.set_ylabel("geocentric error [AU]")
+    ymin, ymax = ax.get_ylim()
+    ax.set_ylim(ymin, ymax * 10 ** 2.2)
+    ax.legend(loc="upper center", ncol=2, fontsize=5.5, handlelength=1.6, columnspacing=1.0)
+    save(fig, "fig_ceres_residual_time.pdf")
+    return {"span": float(yr[-1])}
+
+
 def export_data(data_dir: Path = DATA_DIR, perturbed_json: Path = PERTURBED_JSON) -> list[dict]:
     """Write {mars,ceres,phaethon}_N{1,5,20,60}.json, perturbed_ceres.json and index.json."""
     data_dir = Path(data_dir)
@@ -336,6 +361,14 @@ $K={e['K'][-1]}$ (full window {f(e['full'][-1])} AU; edge effects from the finit
 beating the fitted Kepler orbit by a factor ~{e['fit6_int']/e['interior'][-1]:.0f} interior. The
 osculating-element Kepler orbit (error {f(e['osc'])} AU) is omitted: that figure is an element-offset artifact,
 not a fair comparison.
+
+## fig_ceres_residual_time.pdf
+Geocentric position error [AU] of reconstructed Ceres versus time over the 200-year N-body window, with the same
+integrated Earth subtracted from every reconstruction (so Earth-model error is excluded). NAFF chains ($K=50$,
+$K=200$) are fitted to heliocentric Ceres with the Hann$^4$ window; the 6-element Kepler fits to heliocentric Ceres
+are shown unweighted and weighted by the same Hann$^4$ window (residual weights $\\sqrt{{w}}$). Grey bands mark the
+first and last 10% of the window, outside the interior 80% used for the interior statistics; NAFF errors rise
+towards the window ends where the window weight vanishes.
 """
     FIG_DIR.mkdir(parents=True, exist_ok=True)
     (FIG_DIR / "captions.md").write_text(capt)
@@ -349,6 +382,7 @@ def main():
     c = fig_mars_retrograde()
     dd = fig_chain_3d()
     e = fig_perturbed_ceres(study)
+    fig_ceres_residual_time()
     write_captions(a, b, c, dd, e)
     idx = export_data()
     print(f"figures -> {FIG_DIR}; {len(idx)} data files -> {DATA_DIR}")

@@ -42,3 +42,11 @@ $K=200$ (full window 0.046 AU; edge effects from the finite window grow with $K$
 beating the fitted Kepler orbit by a factor ~503 interior. The
 osculating-element Kepler orbit (error 0.89 AU) is omitted: that figure is an element-offset artifact,
 not a fair comparison.
+
+## fig_ceres_residual_time.pdf
+Geocentric position error [AU] of reconstructed Ceres versus time over the 200-year N-body window, with the same
+integrated Earth subtracted from every reconstruction (so Earth-model error is excluded). NAFF chains ($K=50$,
+$K=200$) are fitted to heliocentric Ceres with the Hann$^4$ window; the 6-element Kepler fits to heliocentric Ceres
+are shown unweighted and weighted by the same Hann$^4$ window (residual weights $\sqrt{w}$). Grey bands mark the
+first and last 10% of the window, outside the interior 80% used for the interior statistics; NAFF errors rise
+towards the window ends where the window weight vanishes.

@@ -14,7 +14,7 @@ from scipy.optimize import least_squares
 from epicycles.bodies import CERES, EARTH, JUPITER, SATURN
 from epicycles.expansion import evaluate_chain, geocentric_chain
 from epicycles.export import chain_to_json
-from epicycles.naff import naff_vector
+from epicycles.naff import hann_window, naff_vector
 from epicycles.kepler import MU_SUN, position
 from epicycles.nbody import MASS_RATIOS, geocentric, integrate
 
@@ -43,6 +43,25 @@ def fit_kepler(el0, t, g):
 
     def res(x):
         return ((position(mk(x), t[idx]) - ref) - g[idx]).ravel()
+
+    x0 = [el0.a, el0.e, el0.i, el0.Omega, el0.omega, el0.M0]
+    sc = [1.0, 0.1, 0.1, 0.1, 0.1, 0.1]
+    r = least_squares(res, x0, x_scale=sc, xtol=1e-15, ftol=1e-15, gtol=1e-15)
+    return mk(r.x)
+
+
+def fit_kepler_helio(el0, t, h, weight=None):
+    """6-element Kepler fit to HELIOCENTRIC Ceres h (every 5th sample).  ``weight``
+    (per-sample, same length as t) multiplies the residuals by sqrt(weight) -- pass the
+    NAFF Hann^p window to match NAFF's weighting; None = unweighted."""
+    idx = slice(None, None, 5)
+    sw = 1.0 if weight is None else np.sqrt(weight[idx] / weight.max())[:, None]
+
+    def mk(x):
+        return replace(el0, a=x[0], e=x[1], i=x[2], Omega=x[3], omega=x[4], M0=x[5])
+
+    def res(x):
+        return (sw * (position(mk(x), t[idx]) - h[idx])).ravel()
 
     x0 = [el0.a, el0.e, el0.i, el0.Omega, el0.omega, el0.M0]
     sc = [1.0, 0.1, 0.1, 0.1, 0.1, 0.1]
@@ -82,6 +101,40 @@ def main():
         e = errs(g, position(el, t) - position(EARTH, t))
         kep_other[name] = {**e, "a": el.a, "e": el.e}
         rows.append((name, 0, None, e))
+    # ---- fair baseline: heliocentric Ceres h = r_Ceres - r_Sun (integrated), integrated
+    # Earth E (heliocentric); every reconstruction is differenced with the SAME integrated E,
+    # so Earth-model error is excluded: err = |(recon_h - E) - g|.
+    h, E = tr["Ceres"], tr["Earth"]
+    hel_k, hel_series = {}, {}
+    for K in KS:
+        rec = evaluate_chain(naff_vector(h, t, K, window_p=WINDOW_P), t)
+        e = errs(g, rec - E)
+        hel_k[K] = e
+        rows.append(("naff_helio", K, 2 * K + 1, e))
+        hel_series[f"naff_helio_K{K}"] = np.linalg.norm(rec - E - g, axis=1)
+    w = hann_window(len(t), WINDOW_P)
+    hel_fit = {}
+    for name, wt in (("kepler_helio_unweighted", None), ("kepler_helio_hann", w)):
+        el = fit_kepler_helio(mean_el, t, h, wt)
+        rec = position(el, t) - E
+        e = errs(g, rec)
+        hel_fit[name] = {**e, "a": el.a, "e": el.e,
+                         "helio_full_max": float(np.linalg.norm(position(el, t) - h, axis=1).max())}
+        rows.append((name, 0, None, e))
+        hel_series[name] = np.linalg.norm(rec - g, axis=1)
+    OUT.mkdir(exist_ok=True)
+    np.savez_compressed(OUT / "perturbed_ceres_residuals.npz", t=t, **hel_series)
+    # ---- tolerance check of the actual 200-yr integration (rtol 1e-12/atol 1e-14 vs tighter)
+    tr2 = integrate(bodies, t0, YEARS * 365.25, DT, rtol=1e-13, atol=1e-16)
+    g2 = geocentric(tr2, "Ceres", "Earth")
+    tol = {"baseline": {"method": "DOP853", "rtol": 1e-12, "atol": 1e-14},
+           "tight": {"method": "DOP853", "rtol": 1e-13, "atol": 1e-16},
+           "max_dg_AU": float(np.linalg.norm(g2 - g, axis=1).max()),
+           "max_dh_ceres_AU": float(np.linalg.norm(tr2["Ceres"] - h, axis=1).max()),
+           "max_dEarth_AU": float(np.linalg.norm(tr2["Earth"] - E, axis=1).max()),
+           "note": "max over the 200-yr sampled grid of |g_tight - g_baseline|"}
+    (OUT / "perturbed_ceres_tolerance.json").write_text(json.dumps(tol, indent=1) + "\n")
+    print("tolerance check:", tol)
     print(f"{'method':14s}{'K/N':>5s}{'circ':>6s}{'full_max':>11s}{'full_rms':>11s}{'int_max':>11s}{'int_rms':>11s}")
     for m, K, nc, e in rows:
         print(f"{m:14s}{K:5d}{(nc or 0):6d}{e['full_max']:11.2e}{e['full_rms']:11.2e}"
@@ -97,6 +150,13 @@ def main():
         "naff_errors": {str(k): v for k, v in res.items()},
         "kepler_osculating_chain_errors": {str(k): v for k, v in kep.items()},
         "kepler_other": kep_other,
+        "heliocentric_baseline": {
+            "naff_helio_errors": {str(k): v for k, v in hel_k.items()},
+            "kepler_helio_fits": hel_fit,
+            "note": "NAFF (Hann^p) on heliocentric Ceres and 6-element Kepler fits to heliocentric "
+                    "Ceres (unweighted; weighted by the NAFF Hann^p window, residual weights "
+                    "sqrt(w)); geocentric error = |(recon_h - E_int) - g| with the SAME integrated "
+                    "Earth E_int subtracted, so Earth-model error is excluded."},
         "kepler_note": "osculating-element Kepler error is dominated by the osculating-vs-mean "
                        "element offset and is NOT a fair Kepler-vs-epicycle comparison; "
                        "kepler_mean_a uses a from the dominant NAFF line of heliocentric Ceres; "
