@@ -148,12 +148,12 @@ def fig_mars_retrograde() -> dict:
     truth = geocentric(MARS, t)
     pt = [c for c in geocentric_chain(MARS, EARTH, 1, 1, t_ref=t0) if c.k == 1]
     n5 = geocentric_chain(MARS, EARTH, 5, 5, t_ref=t0)
-    curves = {"true (Kepler)": truth, "Ptolemaic ($k=1$ deferent + epicycle)": evaluate_chain(pt, t),
+    curves = {"true (Kepler)": truth, "circular two-term ($k=1$ deferent + epicycle)": evaluate_chain(pt, t),
               "$N=5$": evaluate_chain(n5, t)}
     ll = {k: ecliptic_lonlat(v) for k, v in curves.items()}
     lon_u = {k: np.degrees(np.unwrap(v[0])) for k, v in ll.items()}
     styles = {"true (Kepler)": dict(color="k", lw=1.6),
-              "Ptolemaic ($k=1$ deferent + epicycle)": dict(color=OI["verm"], lw=1.0, ls="--"),
+              "circular two-term ($k=1$ deferent + epicycle)": dict(color=OI["verm"], lw=1.0, ls="--"),
               "$N=5$": dict(color=OI["sky"], lw=1.0)}
     saved_rc = dict(plt.rcParams)
     plt.rcParams.update({"font.size": 8.5, "axes.labelsize": 8.5, "legend.fontsize": 7.5,
@@ -166,7 +166,10 @@ def fig_mars_retrograde() -> dict:
         a1.plot(xs, ys, label=k, **styles[k])
     a1.set_xlabel("ecliptic longitude [deg]")
     a1.set_ylabel("ecliptic latitude [deg]")
-    a1.legend(loc="best", handlelength=1.6)
+    h, _ = a1.get_legend_handles_labels()
+    a1.legend(h, ["true (Kepler)", "circular two-term (model A)", "$N=5$"], loc="lower center",
+              bbox_to_anchor=(0.5, 1.01), ncol=3, handlelength=1.4, columnspacing=1.0,
+              borderaxespad=0.0, frameon=False)
     yrs = (t - t0) / 365.25
     dlon = np.diff(lon_u["true (Kepler)"])
     retro = dlon < 0
@@ -182,7 +185,7 @@ def fig_mars_retrograde() -> dict:
     save(fig, "fig_mars_retrograde.pdf")
     plt.rcParams.update({k: saved_rc[k] for k in ("font.size", "axes.labelsize", "legend.fontsize",
                                                   "xtick.labelsize", "ytick.labelsize")})
-    e_pt = _angdiff_deg(ll["Ptolemaic ($k=1$ deferent + epicycle)"][0], ll["true (Kepler)"][0])
+    e_pt = _angdiff_deg(ll["circular two-term ($k=1$ deferent + epicycle)"][0], ll["true (Kepler)"][0])
     e_5 = _angdiff_deg(ll["$N=5$"][0], ll["true (Kepler)"][0])
     return {"planar_60yr": planar_stats, "window_ptol_max_deg": float(e_pt.max()),
             "window_N5_max_deg": float(e_5.max()),
@@ -252,7 +255,7 @@ def fig_perturbed_ceres(d: dict) -> dict:
                label="Kepler, 6-element fit (interior)")
     ax.axhline(base["kepler_fit6"]["full_max"], color=OI["green"], ls=":", lw=0.9,
                label="Kepler, 6-element fit (full)")
-    ax.set_xlabel(r"NAFF lines kept $K$ (circles $=2K+1$)")
+    ax.set_xlabel(r"NAFF lines kept $K$ (rotating circles $=2K$, plus offset)")
     ax.set_ylabel("max geocentric error [AU] (200 yr)")
     ax.legend(loc="lower left", handlelength=1.6)
     save(fig, "fig_perturbed_ceres.pdf")
@@ -263,6 +266,31 @@ def fig_perturbed_ceres(d: dict) -> dict:
 
 
 # ---------------------------------------------------------------- exports
+def fig_ceres_residual_time() -> dict:
+    """Geocentric error vs time over the 200-yr window (series from perturbed_ceres.py)."""
+    path = ROOT / "experiments" / "out" / "perturbed_ceres_residuals.npz"
+    if not path.exists():
+        raise FileNotFoundError(f"{path} missing: run `uv run python experiments/perturbed_ceres.py` first")
+    z = np.load(path)
+    yr = (z["t"] - z["t"][0]) / 365.25
+    fig, ax = plt.subplots(figsize=(W1, 2.9))
+    ax.axvspan(yr[0], yr[int(0.1 * len(yr))], color="0.88", lw=0)
+    ax.axvspan(yr[int(0.9 * len(yr))], yr[-1], color="0.88", lw=0)
+    for key, col, lab, ls in (("naff_helio_K50", OI["sky"], "NAFF $K=50$", "-"),
+                              ("naff_helio_K200", OI["blue"], "NAFF $K=200$", "-"),
+                              ("kepler_helio_unweighted", OI["verm"], "Kepler fit, unweighted", "--"),
+                              ("kepler_helio_hann", OI["green"], "Kepler fit, Hann-weighted", "--")):
+        ax.semilogy(yr, np.maximum(z[key], 1e-16), color=col, ls=ls, lw=0.6, label=lab)
+    ax.set_xlim(yr[0], yr[-1])
+    ax.set_xlabel("time from epoch [yr]")
+    ax.set_ylabel("geocentric error [AU]")
+    ymin, ymax = ax.get_ylim()
+    ax.set_ylim(ymin, ymax * 10 ** 2.2)
+    ax.legend(loc="upper center", ncol=2, fontsize=5.5, handlelength=1.6, columnspacing=1.0)
+    save(fig, "fig_ceres_residual_time.pdf")
+    return {"span": float(yr[-1])}
+
+
 def export_data(data_dir: Path = DATA_DIR, perturbed_json: Path = PERTURBED_JSON) -> list[dict]:
     """Write {mars,ceres,phaethon}_N{1,5,20,60}.json, perturbed_ceres.json and index.json."""
     data_dir = Path(data_dir)
@@ -313,29 +341,37 @@ Errors saturate at the double-precision roundoff floor ($\\sim2\\times10^{{-13}}
 ## fig_mars_retrograde.pdf
 Geocentric Mars over 2.75 years from 2020-05-31 (two oppositions). Top: sky track in ecliptic
 longitude/latitude. Bottom: unwrapped longitude minus its mean motion ($0.524^\\circ$/day); grey bands
-mark retrograde motion of the true path. Black: exact Kepler; dashed: Ptolemaic-order truncation
-(Mars $k=+1$ deferent plus Earth $k=+1$ epicycle only, the model A of theory/derivation.md Part 4.3d); blue: $N=5$ (11+11
-circles). The Ptolemaic model reproduces the retrograde loops but is displaced by up to
+mark retrograde motion of the true path. Black: exact Kepler; dashed: circular two-term approximation
+(Mars $k=+1$ deferent plus Earth $k=+1$ epicycle only, with no eccentric or equant; this is model A of theory/derivation.md Part 4.3d and not Ptolemy's actual model); blue: $N=5$ ($10+10$ rotating
+circles plus an offset each). The circular two-term approximation reproduces the retrograde loops but is displaced by up to
 {c['window_ptol_max_deg']:.1f}$^\\circ$ in longitude in this window (planar 60-year sup norm
 {c['planar_60yr']['max_deg']:.1f}$^\\circ$, RMS {c['planar_60yr']['rms_deg']:.1f}$^\\circ$, matching the
 derivation's $33.2^\\circ$/$9.7^\\circ$); $N=5$ is within {c['window_N5_max_deg']:.3f}$^\\circ$.
 
 ## fig_chain_3d.pdf
 Geocentric epicycle chain of Eros (inclination $10.8^\\circ$) with $N=3$ for Eros and for Earth
-({dd['n_circles']} circles, each drawn in its own orbital plane about the preceding arm tip; red: body
+({dd['n_circles']-2} rotating circles plus the static offsets, each circle drawn in its own orbital plane about the preceding arm tip; red: body
 circles, green: negated Earth circles). Blue: tip trail over one synodic period
 ({dd['synodic_days']:.0f} d); grey: exact path. Maximum tip error {dd['tip_err_AU']:.2f} AU at this low order.
 
 ## fig_perturbed_ceres.pdf
-Maximum geocentric position error [AU] of a NAFF-extracted epicycle chain ($2K+1$ circles) fitted to
-an N-body (Sun, Earth, Jupiter, Saturn) geocentric Ceres trajectory over {e['span']} years, versus the number of lines $K$:
+Maximum geocentric position error [AU] of a NAFF-extracted epicycle chain ($2K$ rotating circles plus a static offset) fitted to
+an N-body (Sun, Earth, Jupiter, Saturn) geocentric Ceres trajectory (so Earth's perturbations are fitted too) over {e['span']} years, versus the number of lines $K$:
 interior 80% of the window (dark blue) and full window (light blue). Horizontal lines: best-fit
 Kepler baselines: mean-$a$ Kepler {f(e['mean_a'])} AU; 6-element least-squares Kepler fit
 {f(e['fit6_int'])} AU (interior), {f(e['fit6_full'])} AU (full). NAFF reaches {f(e['interior'][-1])} AU interior at
 $K={e['K'][-1]}$ (full window {f(e['full'][-1])} AU; edge effects from the finite window grow with $K$),
 beating the fitted Kepler orbit by a factor ~{e['fit6_int']/e['interior'][-1]:.0f} interior. The
 osculating-element Kepler orbit (error {f(e['osc'])} AU) is omitted: that figure is an element-offset artifact,
-not a fair comparison.
+not a meaningful comparison. The Kepler baselines here fit only Ceres with Earth held on a Kepler orbit; the matched heliocentric comparison is the paper's Ceres table and the residual-versus-time figure.
+
+## fig_ceres_residual_time.pdf
+Geocentric position error [AU] of reconstructed Ceres versus time over the 200-year N-body window, with the same
+integrated Earth subtracted from every reconstruction (so Earth-model error is excluded). NAFF chains ($K=50$,
+$K=200$) are fitted to heliocentric Ceres with the Hann$^4$ window; the 6-element Kepler fits to heliocentric Ceres
+are shown unweighted and weighted by the same Hann$^4$ window (residual weights $\\sqrt{{w}}$). Grey bands mark the
+first and last 10% of the window, outside the interior 80% used for the interior statistics; NAFF errors rise
+towards the window ends where the window weight vanishes.
 """
     FIG_DIR.mkdir(parents=True, exist_ok=True)
     (FIG_DIR / "captions.md").write_text(capt)
@@ -349,6 +385,7 @@ def main():
     c = fig_mars_retrograde()
     dd = fig_chain_3d()
     e = fig_perturbed_ceres(study)
+    fig_ceres_residual_time()
     write_captions(a, b, c, dd, e)
     idx = export_data()
     print(f"figures -> {FIG_DIR}; {len(idx)} data files -> {DATA_DIR}")

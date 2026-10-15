@@ -108,6 +108,7 @@ This protocol applies when ending a Beads implementation workflow. It is subordi
 uv sync                                          # Python deps (Python >= 3.11)
 uv run pytest -q                                 # Python tests
 uv run python experiments/perturbed_ceres.py     # ~3 min; regenerates experiments/out
+uv run python experiments/tables.py              # seconds; paper Tables I and IV -> experiments/out
 uv run python experiments/make_figures.py       # figures/ + web/public/data (deterministic; no diff expected)
 uv run python experiments/export_golden.py       # golden vectors for the TS port
 make -C paper                                    # build paper/main.pdf (pdflatex+bibtex, revtex4-2); `make -C paper clean`

@@ -83,7 +83,7 @@ async function main(): Promise<void> {
   function updateWarn(): void {
     const c = circleCountFor(body, state.N);
     warn.textContent = body !== "naff" && state.N > BIG_N_WARN
-      ? `Warning: N=${state.N} gives 2(2N+1) = ${c} circles; rendering may be slow.` : "";
+      ? `Warning: N=${state.N} gives ${c} circle terms (4N rotating + 2 static offsets); rendering may be slow.` : "";
   }
 
   async function setBody(id: BodyId): Promise<void> {
@@ -114,7 +114,7 @@ async function main(): Promise<void> {
     pendingFrame = "ref";
     const rows = naff && id === "naff" ? studyRows(naff.study) : [];
     const note = id === "naff"
-      ? "Perturbed Ceres: N-body integration (Sun, Earth, Jupiter, Saturn) fitted by NAFF into 401 circles; the slider keeps the top K by radius (2K+1 circles). Reference path = full NAFF reconstruction (all 401 circles), not the N-body truth; see paper for N-body truth error and the table below. Left view shows the unperturbed osculating Kepler ellipse for context."
+      ? "Perturbed Ceres: N-body integration (Sun, Earth, Jupiter, Saturn) fitted by NAFF into 401 circles; the slider keeps the top K by radius (2K+1 circle terms including the static offset). Reference path = full NAFF reconstruction (all 401 circles), not the N-body truth; see paper for N-body truth error and the table below. Left view shows the unperturbed osculating Kepler ellipse for context."
       : `${BODY_LABEL[id]}: analytic Bessel/Fourier expansion of the Kepler orbit, computed live. Reference path = exact geocentric Kepler path. Circles: ${circleCountFor(id, state.N)}.`;
     const win = id === "naff"
       ? `Study window ${jdToDate(NAFF_WINDOW[0])} to ${jdToDate(NAFF_WINDOW[1])} (clock limited to it); interior (middle 80%) ${jdToDate(NAFF_INTERIOR[0])} to ${jdToDate(NAFF_INTERIOR[1])}.` : "";
@@ -242,7 +242,7 @@ async function main(): Promise<void> {
     speedv.textContent = `${clock.speed.toFixed(0)} d/s`;
     nv.textContent = `${state.N}`;
     readout.textContent =
-      `circles ${geo.circleCount} | err ${formatAU(err.au)} | lon err ${formatLonError(err.lonArcsec)} | ${fps.toFixed(0)} fps` +
+      `circle terms ${geo.circleCount} | err ${formatAU(err.au)} | lon err ${formatLonError(err.lonArcsec)} | ${fps.toFixed(0)} fps` +
       (body === "naff" ? " | ref = full NAFF" : "");
     requestAnimationFrame(frame);
   }

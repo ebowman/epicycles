@@ -25,7 +25,7 @@ export function nMaxFor(body: BodyId): number {
     default: return 60;
   }
 }
-/** Number of drawn circles: analytic chain has 2(2N+1) (body + Earth); NAFF top-K has 2K+1. */
+/** Number of drawn circles: analytic chain has 2(2N+1) terms (body + Earth; 4N rotating circles plus two static k=0 offsets); NAFF top-K has 2K+1. */
 export function circleCountFor(body: BodyId, n: number): number {
   return body === "naff" ? 2 * n + 1 : 2 * (2 * n + 1);
 }

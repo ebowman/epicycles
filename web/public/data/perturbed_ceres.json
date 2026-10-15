@@ -8935,6 +8935,67 @@
     "e": 0.07717723137291538
    }
   },
+  "heliocentric_baseline": {
+   "naff_helio_errors": {
+    "5": {
+     "full_max": 0.026297063581514294,
+     "full_rms": 0.012592445433208428,
+     "interior_max": 0.026297063581514294,
+     "interior_rms": 0.012002496439023139
+    },
+    "10": {
+     "full_max": 0.029282930300152225,
+     "full_rms": 0.01236379695245169,
+     "interior_max": 0.029282930300152225,
+     "interior_rms": 0.010174914819279311
+    },
+    "20": {
+     "full_max": 0.022314630673556178,
+     "full_rms": 0.008581280616701065,
+     "interior_max": 0.019340263841526262,
+     "interior_rms": 0.005807894533905141
+    },
+    "50": {
+     "full_max": 0.029614625277452487,
+     "full_rms": 0.008180452096643993,
+     "interior_max": 0.01066499530943698,
+     "interior_rms": 0.001976861231467694
+    },
+    "100": {
+     "full_max": 0.03537065957311765,
+     "full_rms": 0.007392296613466708,
+     "interior_max": 0.0011276654872985246,
+     "interior_rms": 0.00017638911958059623
+    },
+    "200": {
+     "full_max": 0.04392976280085774,
+     "full_rms": 0.007664833246945226,
+     "interior_max": 1.7201337522657247e-05,
+     "interior_rms": 2.0438927417068908e-06
+    }
+   },
+   "kepler_helio_fits": {
+    "kepler_helio_unweighted": {
+     "full_max": 0.037360110565743385,
+     "full_rms": 0.013208999323794922,
+     "interior_max": 0.02667901080700639,
+     "interior_rms": 0.012208116232398146,
+     "a": 2.767446053375183,
+     "e": 0.077191040129928,
+     "helio_full_max": 0.0373601105657434
+    },
+    "kepler_helio_hann": {
+     "full_max": 0.02856855292183141,
+     "full_rms": 0.014303631563064995,
+     "interior_max": 0.027998909090448987,
+     "interior_rms": 0.013726129939833496,
+     "a": 2.7674920991073444,
+     "e": 0.07716126678462958,
+     "helio_full_max": 0.028568552921831355
+    }
+   },
+   "note": "NAFF (Hann^p) on heliocentric Ceres and 6-element Kepler fits to heliocentric Ceres (unweighted; weighted by the NAFF Hann^p window, residual weights sqrt(w)); geocentric error = |(recon_h - E_int) - g| with the SAME integrated Earth E_int subtracted, so Earth-model error is excluded."
+  },
   "kepler_note": "osculating-element Kepler error is dominated by the osculating-vs-mean element offset and is NOT a fair Kepler-vs-epicycle comparison; kepler_mean_a uses a from the dominant NAFF line of heliocentric Ceres; kepler_fit6 is a least-squares 6-element ellipse (exact Kepler, Earth Kepler)."
  }
 }

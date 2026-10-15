@@ -3,9 +3,9 @@
 
 Ptolemy's \emph{Almagest} \cite{Toomer1998} predicted planetary positions
 well enough to serve as the working astronomy of the Mediterranean
-and Islamic worlds for well over a thousand years, using nothing but
-uniform circular motions arranged on circles carried by other circles
-\cite{Neugebauer1975,Evans1998}. That a scheme so alien to modern dynamics
+and Islamic worlds for well over a thousand years, using circles carried by other circles
+\cite{Neugebauer1975,Evans1998}, with motion that is uniform about the circle's
+centre or, for the equant, about an offset point (Sec.~\ref{sec:history}). That a scheme so alien to modern dynamics
 could be so accurate invites a modern explanation. A popular one is that
 epicycles are ``just Fourier series'': a sum of rotating
 vectors can trace any closed curve, so of course it fits the sky
@@ -32,8 +32,9 @@ Fourier series in the mean anomaly with Bessel-function coefficients
 position gives a sum of two such series, one for the body and one
 for the Earth, which is an epicycle system in which every radius and rate is
 a function of $(a,e,i,\omega,\Omega,M_0)$ of the two orbits. For perturbed
-motion the representation is no longer exact, but near-integrable bounded
-motion is quasi-periodic, and its frequencies and amplitudes can be
+motion the representation is exact only on analytic invariant tori (whose
+existence for a given trajectory is not guaranteed); for other trajectories it is
+an empirical finite-window approximation, whose frequencies and amplitudes can be
 recovered numerically by Laskar's frequency analysis
 \cite{Laskar1990,Laskar1992,Laskar1999}.
 
@@ -60,20 +61,21 @@ both the body and the Earth terms.
 geocentric trajectories (Mars, Eros), NAFF recovers the analytic Bessel
 epicycle terms (for the ten leading Mars terms over 200 years, with 10-day sampling and 24 lines, relative frequency error
 $2\times10^{-10}$ and relative radius error $9\times10^{-8}$).
-On an N-body-perturbed geocentric Ceres trajectory (Sun, Earth, Jupiter and
-Saturn; 200 years), the NAFF reconstruction error is compared with that of a
-least-squares-fitted six-element Kepler orbit and of a mean-semi-major-axis
-Kepler orbit; NAFF clearly beats the fitted Kepler orbit only for
+On an N-body-perturbed Ceres trajectory (Sun, Earth, Jupiter and
+Saturn; 200 years), the NAFF reconstruction error is compared with that of
+least-squares-fitted six-element Kepler orbits, fitted to the same heliocentric
+data with matched weights and with the same integrated Earth subtracted from every
+reconstruction; NAFF is clearly better than the fitted Kepler orbit only for
 $K\gtrsim50$ lines and only in the interior of the window, where edge effects
 dominate the full window.
-\item A precise statement of validity: the representation is accurate for
-bounded quasi-periodic motion, holds only over finite times for chaotic
-motion, and does not apply to unbound orbits.
+\item A precise statement of validity: the representation is exact for Kepler motion and
+on analytic invariant tori, an empirical finite-window approximation for other
+perturbed motion (including chaotic motion), and does not apply to unbound
+orbits.
 \end{enumerate}
 In addition we provide an open-source interactive three-dimensional
-visualization of the resulting epicycle chains as a pedagogical tool. We
-use ``we found no source that\ldots'' deliberately: the claim is about our
-search, not a proof of absence.
+visualization of the resulting epicycle chains as a pedagogical tool. The
+claim of novelty is about our search, not a proof of absence.
 
 \paragraph*{Why this is not curve fitting.}
 In the construction below, every radius and angular rate is determined by the
