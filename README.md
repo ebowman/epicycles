@@ -41,7 +41,7 @@ make -C paper clean
 npm --prefix web ci                              # install web deps
 npm --prefix web run dev                         # dev server
 npm --prefix web run build                       # typecheck + production build
-npm --prefix web run build:single              # single offline web/dist-single/index.html (opens from file://)
+npm --prefix web run build:single                # single offline web/dist-single/index.html (opens from file://)
 npm --prefix web test                            # vitest (incl. golden tests)
 npm --prefix web run preview                     # serve the production build
 ```
@@ -59,8 +59,8 @@ npm --prefix web run preview                     # serve the production build
 | `zoom=opp` | zoom to opposition |
 | `circles=0` | hide epicycle circles |
 | `info=0` | hide the explanatory panel |
-| `ptolemaic=1` | use the circular two-term (Ptolemaic) approximation |
-| `fourier=1` | Fourier-series view |
+| `ptolemaic=1` | circular two-term (Ptolemaic) approximation; takes effect only at N=1 (for N>1 the full chain is drawn) |
+| `fourier=1` | start at N=1 and animate N from 1 to 20 over 8 s, then hold at 20 (any manual N/body change stops it) |
 | `error=1` | show error versus the reference |
 
 Example: `http://localhost:5173/?preset=ptolemy&paused=1`
