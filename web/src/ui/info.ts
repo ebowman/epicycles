@@ -25,6 +25,8 @@ function section(parent: HTMLElement, title: string, text: string, tex?: string)
 
 export interface InfoPanel {
   setMode(note: string, rows: StudyRow[], windowText: string): void;
+  /** Update only the drawn-circle count text (no KaTeX re-render); no-op if unchanged. */
+  setCircleCount(n: number): void;
 }
 
 export function buildInfo(root: HTMLElement): InfoPanel {
@@ -32,6 +34,10 @@ export function buildInfo(root: HTMLElement): InfoPanel {
   const title = document.createElement("h2"); title.textContent = "How to read this";
   const mode = document.createElement("section"); mode.id = "modenote"; mode.setAttribute("aria-live", "polite");
   root.append(title, mode);
+  const countP = document.createElement("p"); countP.className = "circlecount";
+  const countNum = document.createTextNode("");
+  countP.append("Currently drawn: ", countNum, " circle terms.");
+  let lastCount = -1;
   section(root, "Geocentric difference",
     "Seen from Earth, a body sits at the vector difference of two heliocentric Kepler orbits. The right view draws exactly this path (green) and the epicycle chain that reproduces it.",
     FORMULAS.geo);
@@ -51,14 +57,17 @@ export function buildInfo(root: HTMLElement): InfoPanel {
   a.textContent = "Geocentric epicycle expansions of Keplerian orbits (PDF)";
   const r = document.createElement("a");
   r.href = "https://github.com/ebowman/epicycles"; r.target = "_blank"; r.rel = "noopener"; r.textContent = "source repository";
-  p.append(a, " | ", r);
+  const d = document.createElement("a");
+  d.href = "https://doi.org/10.5281/zenodo.23383709"; d.target = "_blank"; d.rel = "noopener"; d.textContent = "DOI";
+  p.append(a, " | ", r, " | ", d);
   root.append(p);
   return {
+    setCircleCount(c) { if (c !== lastCount) { lastCount = c; countNum.data = String(c); } },
     setMode(note, rows, windowText) {
       mode.replaceChildren();
       const h = document.createElement("h3"); h.textContent = "Current mode";
       const n = document.createElement("p"); n.textContent = note;
-      mode.append(h, n);
+      mode.append(h, n, countP);
       if (rows.length) {
         const w = document.createElement("p"); w.textContent = windowText;
         const det = document.createElement("details"); det.open = true;

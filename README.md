@@ -1,5 +1,7 @@
 # epicycles
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23383709.svg)](https://doi.org/10.5281/zenodo.23383709)
+
 Companion code for the paper "Geocentric epicycle expansions of Keplerian orbits: explicit coefficients, error bounds, and frequency analysis": a paper, a Python reference implementation, and an interactive 3D viewer.
 
 **Live demo:** https://ebowman.github.io/epicycles/ - paper: https://ebowman.github.io/epicycles/paper.pdf (source in `paper/`). `npm --prefix web run build:single` produces one self-contained `web/dist-single/index.html` that works offline from `file://`.
@@ -84,4 +86,4 @@ Example: `http://localhost:5173/?preset=ptolemy&paused=1`
 
 ## Citation
 
-See `CITATION.cff`. A v1.0 release is archived on Zenodo (DOI assigned at release).
+See `CITATION.cff`. Releases are archived on Zenodo; the concept DOI (all versions, resolves to the latest) is [10.5281/zenodo.23383709](https://doi.org/10.5281/zenodo.23383709).
