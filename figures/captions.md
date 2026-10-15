@@ -19,29 +19,29 @@ Errors saturate at the double-precision roundoff floor ($\sim2\times10^{-13}$ AU
 ## fig_mars_retrograde.pdf
 Geocentric Mars over 2.75 years from 2020-05-31 (two oppositions). Top: sky track in ecliptic
 longitude/latitude. Bottom: unwrapped longitude minus its mean motion ($0.524^\circ$/day); grey bands
-mark retrograde motion of the true path. Black: exact Kepler; dashed: Ptolemaic-order truncation
-(Mars $k=+1$ deferent plus Earth $k=+1$ epicycle only, the model A of theory/derivation.md Part 4.3d); blue: $N=5$ (11+11
-circles). The Ptolemaic model reproduces the retrograde loops but is displaced by up to
+mark retrograde motion of the true path. Black: exact Kepler; dashed: circular two-term approximation
+(Mars $k=+1$ deferent plus Earth $k=+1$ epicycle only, with no eccentric or equant; this is model A of theory/derivation.md Part 4.3d and not Ptolemy's actual model); blue: $N=5$ ($10+10$ rotating
+circles plus an offset each). The circular two-term approximation reproduces the retrograde loops but is displaced by up to
 32.8$^\circ$ in longitude in this window (planar 60-year sup norm
 33.2$^\circ$, RMS 9.7$^\circ$, matching the
 derivation's $33.2^\circ$/$9.7^\circ$); $N=5$ is within 0.001$^\circ$.
 
 ## fig_chain_3d.pdf
 Geocentric epicycle chain of Eros (inclination $10.8^\circ$) with $N=3$ for Eros and for Earth
-(14 circles, each drawn in its own orbital plane about the preceding arm tip; red: body
+(12 rotating circles plus the static offsets, each circle drawn in its own orbital plane about the preceding arm tip; red: body
 circles, green: negated Earth circles). Blue: tip trail over one synodic period
 (845 d); grey: exact path. Maximum tip error 0.01 AU at this low order.
 
 ## fig_perturbed_ceres.pdf
-Maximum geocentric position error [AU] of a NAFF-extracted epicycle chain ($2K+1$ circles) fitted to
-an N-body (Sun, Earth, Jupiter, Saturn) geocentric Ceres trajectory over 200 years, versus the number of lines $K$:
+Maximum geocentric position error [AU] of a NAFF-extracted epicycle chain ($2K$ rotating circles plus a static offset) fitted to
+an N-body (Sun, Earth, Jupiter, Saturn) geocentric Ceres trajectory (so Earth's perturbations are fitted too) over 200 years, versus the number of lines $K$:
 interior 80% of the window (dark blue) and full window (light blue). Horizontal lines: best-fit
 Kepler baselines: mean-$a$ Kepler 0.051 AU; 6-element least-squares Kepler fit
 0.027 AU (interior), 0.038 AU (full). NAFF reaches 5.4e-05 AU interior at
 $K=200$ (full window 0.046 AU; edge effects from the finite window grow with $K$),
 beating the fitted Kepler orbit by a factor ~503 interior. The
 osculating-element Kepler orbit (error 0.89 AU) is omitted: that figure is an element-offset artifact,
-not a fair comparison.
+not a meaningful comparison. The Kepler baselines here fit only Ceres with Earth held on a Kepler orbit; the matched heliocentric comparison is the paper's Ceres table and the residual-versus-time figure.
 
 ## fig_ceres_residual_time.pdf
 Geocentric position error [AU] of reconstructed Ceres versus time over the 200-year N-body window, with the same

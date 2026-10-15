@@ -26,7 +26,7 @@ conditions, and does not show that a given body lies on one. (iv)~For any other
 trajectory, such as our N-body Ceres integration, a finite set of epicycles
 recovered by frequency analysis is an empirical approximation on a finite
 window. The Ceres experiment demonstrates reconstruction accuracy there, with
-interior errors that decrease monotonically with the number of lines, and shows
+interior errors that decrease with the number of lines (monotonically for $K\ge10$), and shows
 its price, namely window-edge errors that do not; it does not demonstrate that
 the motion is quasi-periodic.
 
@@ -64,8 +64,7 @@ et al.\ \cite{Peralta2003}; modern ephemerides are likewise sums of uniform
 circular motions \cite{Bretagnon1988,Kudryavtsev2016}. Our results are a
 quantitative, explicitly geocentric and three-dimensional assembly of these
 ideas, with truncation bounds and a check of NAFF against the analytic
-terms. This is a statement about the sources we found, not a proof of
-priority.
+terms.
 
 \paragraph*{Limitations.}
 (1)~We do not validate against JPL Horizons or any observed ephemeris; the
@@ -73,10 +72,10 @@ reference for Kepler tests is exact two-body motion and for Ceres an
 N-body integration with only the Sun, the Earth, Jupiter and Saturn.
 (2)~The planetary elements are approximate J2000 mean elements and no light
 time, aberration, precession or nutation is modelled, which changes the
-numbers but not the structure of the argument. (3)~The Ptolemaic models in
-Table~\ref{tab:ptolemy} are harmonic truncations of the Kepler series, not
+numbers but not the structure of the argument. (3)~The models in
+Table~\ref{tab:ptolemy}, including the circular two-term approximation A, are harmonic truncations of the Kepler series, not
 reconstructions of Ptolemy's models. (4)~The NAFF edge effects are
 significant: over the full window the extracted chain is no better than a
-fitted Kepler orbit. (5)~Truncation error is not monotone in the retained set
+fitted Kepler orbit, and our tolerance check on the numerical reference is a single tighter rerun, which shows insensitivity to the tolerance rather than proving convergence. (5)~Truncation error is not monotone in the retained set
 for small orders. (6)~Several historical sources were consulted only through
 secondary accounts (Sec.~\ref{sec:history}).

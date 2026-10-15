@@ -142,28 +142,44 @@ osculating mean motions of the planets at the $10^{-3}$ (Jupiter) level; this is
 immaterial because the study compares against the same integration. With all
 planet masses set to zero the integration reproduces the Kepler propagation of
 Sec.~\ref{sec:num-kepler} to better than $10^{-8}$~AU over a 25-yr test span, a check of the
-integrator. The study uses a $200$-yr span at $5$-day sampling ($14\,611$
+integrator; this zero-perturber, 25-yr control is supplementary and does not by
+itself validate the $200$-yr perturbed integration. The latter was therefore
+repeated with tighter tolerances, DOP853 with $\mathrm{rtol}=10^{-13}$ and
+$\mathrm{atol}=10^{-16}$ in place of $10^{-12}$ and $10^{-14}$. Over the whole
+$200$-yr sampled grid the geocentric Ceres positions of the two runs differ by at
+most $1.03\times10^{-8}$~AU, dominated by the Earth ($1.03\times10^{-8}$~AU;
+heliocentric Ceres alone: $5.4\times10^{-12}$~AU). This shows that the reference
+is insensitive to the tolerance at the level of $10^{-8}$~AU, three orders of
+magnitude below the smallest NAFF interior error reported below
+($1.7\times10^{-5}$~AU); it is one tighter run, not a proof of convergence. The study uses a $200$-yr span at $5$-day sampling ($14\,611$
 samples) starting at the Ceres epoch, JD~2461200.5.
 
 \subsection{Baselines and error metrics}
 \label{sec:num-baselines}
 
-The NAFF reconstruction of the geocentric Ceres series is compared with three
-Kepler baselines, each differenced against the Kepler orbit of the Earth--Moon
-barycentre in the same way as in Eq.~\eqref{eq:geo}.
+The NAFF reconstruction of the Ceres series is compared with Kepler
+baselines. In the main comparison (Sec.~\ref{sec:res-ceres}) every reconstruction
+is fitted to the \emph{heliocentric} integrated Ceres trajectory and the
+\emph{same} integrated Earth--Moon barycentre trajectory is subtracted from it, so
+that the geocentric error contains no Earth-model error.
 \begin{enumerate}
-\item \emph{Osculating Kepler:} the Kepler orbit with the osculating elements at
-the start epoch (the full analytic chain with $N_b=N_\oplus\in\{10,20,40\}$).
-Its error is dominated by the difference between osculating and mean elements
-and must not be read as a ``Kepler versus epicycles'' comparison.
-\item \emph{Mean-$a$ Kepler:} the same elements but with $a$ replaced by the value
-corresponding to the dominant NAFF line of the heliocentric Ceres series,
-$a=(\mu/n_{\rm mean}^2)^{1/3}$.
-\item \emph{Fitted six-element Kepler:} a nonlinear least-squares fit of all six
+\item \emph{Fitted six-element Kepler, unweighted:} a nonlinear least-squares fit of all six
 elements of Ceres (\texttt{scipy.optimize.least\_squares}, started from the
-mean-$a$ orbit, every fifth sample) to the geocentric series, with the Earth's
-Kepler orbit subtracted. This is the fair Kepler baseline for the comparison.
+mean-$a$ orbit, every fifth sample) to the heliocentric series.
+\item \emph{Fitted six-element Kepler, Hann$^4$-weighted:} the same fit with residuals
+weighted by $\sqrt{w_n}$, with $w_n$ the NAFF window, so that both methods
+minimise the same weighted objective.
 \end{enumerate}
+Three further baselines are reported as supplementary context. The \emph{osculating Kepler}
+orbit uses the osculating elements at the start epoch (the full analytic chain with
+$N_b=N_\oplus\in\{10,20,40\}$); its error is dominated by the difference
+between osculating and mean elements and must not be read as a ``Kepler versus
+epicycles'' comparison. The \emph{mean-$a$ Kepler} orbit has the same elements but
+$a$ replaced by the value corresponding to the dominant NAFF line of the
+heliocentric Ceres series, $a=(\mu/n_{\rm mean}^2)^{1/3}$. Finally, in the earlier
+protocol the NAFF chain and a six-element fit were both fitted to the
+\emph{geocentric} series, with the Earth's Kepler orbit subtracted in the Kepler
+case, so that the Kepler baseline there cannot correct any Earth-model error.
 Reconstruction errors are Euclidean distances $d_n=|\mathbf r_n-\hat{\mathbf r}_n|$
 in AU. We report the sup norm $\max_nd_n$ and the RMS $(\langle d_n^2\rangle)^{1/2}$
 over the full window, and the same two quantities over the \emph{interior} 80\%
@@ -171,9 +187,17 @@ of the samples (indices $0.1N_s$ to $0.9N_s$), which excludes the window-edge
 effect described above. For the analytic bound (Table~\ref{tab:nneeded}) the
 error is the sampled maximum of $|z-z_N|/a$ over a grid in $M$.
 
-\subsection{Code availability}
+\subsection{Code availability and reproducibility}
 \label{sec:code}
 
+\paragraph*{Archive and licence.}
+The code, data products and this paper are in the repository
+\url{https://github.com/ebowman/epicycles}, archived as release v1.0. The
+interactive viewer is at \url{https://ebowman.github.io/epicycles/} and the
+paper PDF at \url{https://ebowman.github.io/epicycles/paper.pdf}. The code is
+released under the MIT licence; the paper and figures under CC~BY~4.0.
+
+\paragraph*{Implementation.}
 The implementation is in the repository's \texttt{epicycles} package:
 \texttt{kepler.py} (\texttt{Elements}, \texttt{solve\_kepler}, \texttt{position}),
 \texttt{expansion.py} (\texttt{kepler\_fourier}, \texttt{to\_epicycles},
@@ -181,6 +205,76 @@ The implementation is in the repository's \texttt{epicycles} package:
 (\texttt{rho}, \texttt{tail\_bound}, \texttt{geocentric\_tail\_bound}),
 \texttt{naff.py} (\texttt{naff\_complex}, \texttt{naff\_vector}),
 \texttt{nbody.py} (\texttt{integrate}, \texttt{geocentric}) and
-\texttt{bodies.py} (element sets). The perturbed-Ceres study is
-\texttt{experiments/perturbed\_ceres.py} and the figures are made by
+\texttt{bodies.py} (element sets).
+
+\paragraph*{Initial conditions and epochs.}
+Table~\ref{tab:elements} lists the element sets used (heliocentric ecliptic J2000;
+angles in degrees, $a$ in AU), exactly as in \texttt{epicycles/bodies.py}. The
+planets are the JPL Solar System Dynamics ``Approximate Positions of the Planets''
+Table~1 values at J2000 (JD~2451545.0), rates ignored, converted by
+$M_0=L-\varpi$ and $\omega=\varpi-\Omega$; the Earth is the Earth--Moon barycentre.
+The asteroids are JPL Small-Body Database osculating elements at epoch JD~2461200.5
+(TDB). Both sets were retrieved on 2026-10-14. Times are Julian dates (TDB);
+$\mu=k^2$ with $k=0.01720209895$. The N-body study starts at JD~2461200.5, spans
+$200$ yr ($73\,050$ d) with $5$-day output ($14\,611$ samples), uses DOP853 with
+$\mathrm{rtol}=10^{-12}$, $\mathrm{atol}=10^{-14}$ and the mass ratios of
+Sec.~\ref{sec:num-nbody}. The geocentric figures of Sec.~\ref{sec:res-conv} use
+daily samples from JD~2461200.5 over $50$ yr, and the Mars NAFF test uses $200$ yr
+at $10$-day sampling with $K=24$ (Sec.~\ref{sec:res-naff-kepler}).
+
+\begin{table*}[tb]
+\caption{Element sets used (angles in degrees, $a$ in AU), as in
+\texttt{epicycles/bodies.py}. Planet $\omega$ and $M_0$ are derived from the JPL
+longitudes of perihelion and mean longitude.}
+\label{tab:elements}
+\begin{ruledtabular}
+\begin{tabular}{lrrrrrrr}
+Body & Epoch (JD) & $a$ & $e$ & $i$ & $\Omega$ & $\omega$ & $M_0$\\
+\hline
+Earth & 2451545.0 & 1.00000261 & 0.01671123 & -1.531e-05 & 0 & 102.9376819 & 357.5268897 \\
+Mars & 2451545.0 & 1.52371034 & 0.0933941 & 1.84969142 & 49.55953891 & 286.4968315 & 19.39019754 \\
+Jupiter & 2451545.0 & 5.202887 & 0.04838624 & 1.30439695 & 100.4739091 & 274.2545707 & 19.66796068 \\
+Saturn & 2451545.0 & 9.53667594 & 0.05386179 & 2.48599187 & 113.6624245 & 338.9364538 & 317.3553659 \\
+Ceres & 2461200.5 & 2.765552595 & 0.07969229515 & 10.5880278 & 80.24862682 & 73.29421453 & 274.4193464 \\
+Eros & 2461200.5 & 1.458243717 & 0.2228779628 & 10.8285441 & 304.2679713 & 178.9181319 & 62.51145502 \\
+Phaethon & 2461200.5 & 1.271464621 & 0.8896722844 & 22.3105273 & 265.098806 & 322.3001685 & 301.4858239 \\
+\end{tabular}
+\end{ruledtabular}
+\end{table*}
+
+\paragraph*{Software versions.}
+Tested with Python $3.12.4$ (the local interpreter), \texttt{numpy} $2.5.4$, \texttt{scipy} $1.18.1$ and
+\texttt{matplotlib} $3.11.2$, as locked in \texttt{uv.lock}. The project supports Python $\ge3.11$
+(\texttt{pyproject.toml}); the lock file resolves \texttt{scipy} $1.18.1$ for Python $\ge3.12$ and
+$1.17.1$ for Python $3.11$ (and \texttt{numpy} $2.4.6$ for Python $3.11$); the Python $3.11$ resolution was not run. The viewer
+uses three.js $0.186.1$, TypeScript $5.9.3$, Vite $8.3.1$ and Vitest $5.0.2$ on
+Node $\ge22.12$ (\texttt{web/.nvmrc}: Node $24$).
+
+\paragraph*{Commands.}
+From the repository root, after \texttt{uv sync}:
+\begin{itemize}
+\item \texttt{uv run pytest -q}: Python test suite.
+\item \texttt{uv run python experiments/\allowbreak perturbed\_\allowbreak ceres.py} ($\approx3$~min):
+Sec.~\ref{sec:res-ceres}, Table~\ref{tab:ceres} and Fig.~\ref{fig:ceres}
+data, the heliocentric baseline and the tolerance check
+(\texttt{experiments/\allowbreak out/perturbed\_\allowbreak ceres.json},
+\texttt{perturbed\_\allowbreak ceres\_\allowbreak tolerance.json}).
+\item \texttt{uv run python experiments/\allowbreak near\_\allowbreak parabolic.py} ($\approx2$--$3$~min):
+Table~\ref{tab:nearpar} (\texttt{near\_\allowbreak parabolic.json}) and the NAFF line data of
+Table~\ref{tab:naff-lines} (\texttt{naff\_\allowbreak lines\_\allowbreak mars.json}).
+\item \texttt{uv run python experiments/\allowbreak tables.py} (seconds):
+Tables~\ref{tab:nneeded} and~\ref{tab:ptolemy}
+(\texttt{experiments/\allowbreak out/\allowbreak nneeded.json},
+\texttt{ptolemy\_\allowbreak truncations.json}).
+\item \texttt{uv run python experiments/\allowbreak make\_\allowbreak figures.py}: Figs.~\ref{fig:decay},
+\ref{fig:conv}, \ref{fig:retro}, \ref{fig:chain3d}, \ref{fig:ceres} and
+\ref{fig:ceresres} (written to \texttt{figures/}; the screenshot of
+Fig.~\ref{fig:spa} is a manual capture of the viewer) and the data files for the viewer.
+\item \texttt{uv run python experiments/\allowbreak export\_\allowbreak golden.py}: golden vectors for the
+TypeScript port.
+\item \texttt{npm --prefix web ci}, \texttt{npm --prefix web test},
+\texttt{npm --prefix web run build}: viewer dependencies, tests and build.
+\item \texttt{make -C paper}: this paper.
+\end{itemize}
+The planar maximum and RMS of model A are also reproduced by
 \texttt{experiments/make\_figures.py}.

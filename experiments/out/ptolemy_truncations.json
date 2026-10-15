@@ -1,0 +1,56 @@
+{
+ "span_years": 60,
+ "dt_days": 0.5,
+ "n_retro_true": 28,
+ "rows": [
+  {
+   "model": "A",
+   "terms": "k=1, both bodies",
+   "max_deg": 33.24020990555761,
+   "rms_deg": 9.696883368647127,
+   "n_retro_intervals": 28
+  },
+  {
+   "model": "B",
+   "terms": "k in {0,1}, both",
+   "max_deg": 9.398413588959732,
+   "rms_deg": 2.715451482687223,
+   "n_retro_intervals": 28
+  },
+  {
+   "model": "C",
+   "terms": "Mars k in {0,1,2}, Earth k=1",
+   "max_deg": 5.05126752305134,
+   "rms_deg": 0.968685885783201,
+   "n_retro_intervals": 28
+  },
+  {
+   "model": "D",
+   "terms": "k in {0,1,2}, both",
+   "max_deg": 0.5573771199227385,
+   "rms_deg": 0.15845851601983954,
+   "n_retro_intervals": 28
+  },
+  {
+   "model": "E",
+   "terms": "|k|<=2, both",
+   "max_deg": 0.7280781597474947,
+   "rms_deg": 0.1822565245123848,
+   "n_retro_intervals": 28
+  },
+  {
+   "model": "F",
+   "terms": "|k|<=5, both",
+   "max_deg": 0.000603636534451441,
+   "rms_deg": 0.00013311985507085888,
+   "n_retro_intervals": 28
+  },
+  {
+   "model": "G",
+   "terms": "|k|<=10, both",
+   "max_deg": 8.17926708547629e-09,
+   "rms_deg": 1.7649061084946344e-09,
+   "n_retro_intervals": 28
+  }
+ ]
+}
