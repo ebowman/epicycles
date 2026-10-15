@@ -148,3 +148,14 @@ describe("KaTeX panel formulas", () => {
     }
   });
 });
+
+describe("drawn circle count (info panel / HUD source of truth = chain length)", () => {
+  it("analytic chain length equals circleCountFor; Ptolemaic N=1 draws 2 (not 6)", () => {
+    for (const n of [1, 3, 7]) {
+      expect(geocentricChain(BODY_ELEMENTS.mars, EARTH, n, n).length).toBe(circleCountFor("mars", n));
+    }
+    const full = geocentricChain(BODY_ELEMENTS.mars, EARTH, 1, 1);
+    expect(circleCountFor("mars", 1)).toBe(6);
+    expect(ptolemaicChain(full).length).toBe(2);
+  });
+});

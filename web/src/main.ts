@@ -78,6 +78,7 @@ async function main(): Promise<void> {
       const full = geocentricChain(BODY_ELEMENTS[body], EARTH, state.N, state.N);
       geo.setChain(ptolemaic && state.N === 1 ? ptolemaicChain(full) : full);
     }
+    info.setCircleCount(geo.circleCount);
     updateWarn();
   };
   function updateWarn(): void {
@@ -115,7 +116,7 @@ async function main(): Promise<void> {
     const rows = naff && id === "naff" ? studyRows(naff.study) : [];
     const note = id === "naff"
       ? "Perturbed Ceres: N-body integration (Sun, Earth, Jupiter, Saturn) fitted by NAFF into 401 circles; the slider keeps the top K by radius (2K+1 circle terms including the static offset). Reference path = full NAFF reconstruction (all 401 circles), not the N-body truth; see paper for N-body truth error and the table below. Left view shows the unperturbed osculating Kepler ellipse for context."
-      : `${BODY_LABEL[id]}: analytic Bessel/Fourier expansion of the Kepler orbit, computed live. Reference path = exact geocentric Kepler path. ${circleCountFor(id, state.N)} circle terms.`;
+      : `${BODY_LABEL[id]}: analytic Bessel/Fourier expansion of the Kepler orbit, computed live. Reference path = exact geocentric Kepler path.`;
     const win = id === "naff"
       ? `Study window ${jdToDate(NAFF_WINDOW[0])} to ${jdToDate(NAFF_WINDOW[1])} (clock limited to it); interior (middle 80%) ${jdToDate(NAFF_INTERIOR[0])} to ${jdToDate(NAFF_INTERIOR[1])}.` : "";
     info.setMode(note, rows, win);
