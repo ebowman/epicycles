@@ -2,6 +2,8 @@
 
 Newtonian orbits as exact epicycle (Fourier) systems: a paper, a Python reference implementation, and an interactive 3D viewer.
 
+**Live demo:** https://ebowman.github.io/epicycles/ - paper: [paper/main.pdf](paper/main.pdf). `npm --prefix web run build:single` produces one self-contained `web/dist-single/index.html` that works offline from `file://`.
+
 ## Hypothesis and verdict
 
 Hypothesis: Ptolemaic epicycles are Fourier-type series, so any bounded classical Newtonian trajectory seen from Earth can be written as a system of epicycles. Verdict: supported, with qualifications. A bound Kepler orbit is an exact Fourier series in the mean anomaly with Bessel-function coefficients, each term being a pair of counter-rotating circles. The geocentric position of a body (`r_body - r_earth`) is therefore an exact, uniformly convergent sum of two epicycle families with Bessel-coefficient radii. It is Bohr almost-periodic, not a single Fourier series. The Ptolemaic model is the leading truncation (a 2-circle, k=+1 model; for Mars it reproduces the retrograde loops with longitude errors up to 33 degrees). Perturbed (N-body) motion is quasi-periodic and is recovered on finite windows by numerical frequency analysis (NAFF); the representation fails for unbound orbits and long-term chaos. The core idea is classical (Hanson 1960, Gallavotti 2001, Scholz 2022 and others; see `research/lit-review.md`). The contribution here is the explicit, quantitative three-dimensional geocentric construction. See `paper/main.tex` for the abstract and results.
@@ -39,6 +41,7 @@ make -C paper clean
 npm --prefix web ci                              # install web deps
 npm --prefix web run dev                         # dev server
 npm --prefix web run build                       # typecheck + production build
+npm --prefix web run build:single              # single offline web/dist-single/index.html (opens from file://)
 npm --prefix web test                            # vitest (incl. golden tests)
 npm --prefix web run preview                     # serve the production build
 ```

@@ -15,7 +15,7 @@ import {
   BIG_N_WARN, BODY_ELEMENTS, BODY_LABEL, BodyId, NAFF_HELIO_ELEMENTS, NAFF_INTERIOR, NAFF_WINDOW,
   PresetId, circleCountFor, ptolemaicChain, clampToWindow, fourierN, nMaxFor, parseParams, presetDefaults, selectTopK, studyRows,
 } from "./sim/presets";
-import { LoadedChain, loadChain } from "./data/loader";
+import { LoadedChain, loadBundledNaffChain } from "./data/loader";
 import { buildInfo } from "./ui/info";
 import { HelioView } from "./view/heliocentric";
 import { GeoView } from "./view/geocentric";
@@ -88,8 +88,8 @@ async function main(): Promise<void> {
 
   async function setBody(id: BodyId): Promise<void> {
     if (id === "naff" && !naff) {
-      try { naff = await loadChain(`${import.meta.env.BASE_URL}data/perturbed_ceres.json`); naffFull = naff.epicycles; }
-      catch (e) { flash(`Could not load perturbed_ceres.json: ${(e as Error).message}`); id = "mars"; }
+      try { naff = loadBundledNaffChain(); naffFull = naff.epicycles; }
+      catch (e) { flash(`Could not load bundled perturbed_ceres chain: ${(e as Error).message}`); id = "mars"; }
     }
     body = id;
     bodySel.value = id;

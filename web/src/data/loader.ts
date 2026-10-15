@@ -1,6 +1,7 @@
 /** Load and validate epicycle-chain JSON (docs/epicycle-schema.md, version 1). */
 import { Epicycle, Source } from "../math/expansion";
 import { Vec3 } from "../math/kepler";
+import perturbedCeres from "../../public/data/perturbed_ceres.json";
 
 export interface ChainMeta {
   body: string | null;
@@ -106,8 +107,7 @@ export function parseChain(json: unknown): LoadedChain {
   return out;
 }
 
-export async function loadChain(url: string): Promise<LoadedChain> {
-  const resp = await fetch(url);
-  if (!resp.ok) throw new Error(`Failed to fetch ${url}: HTTP ${resp.status}`);
-  return parseChain(await resp.json());
+/** Parse and validate the perturbed-Ceres NAFF chain bundled into the JS at build time (no runtime fetch). */
+export function loadBundledNaffChain(): LoadedChain {
+  return parseChain(perturbedCeres);
 }

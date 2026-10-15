@@ -70,6 +70,7 @@ make -C paper                                    # build paper/main.pdf (pdflate
 npm --prefix web ci                              # Node >= 22.12 (web/.nvmrc: 24)
 npm --prefix web test                            # vitest
 npm --prefix web run build                       # tsc --noEmit && vite build
+npm --prefix web run build:single              # single offline web/dist-single/index.html (opens from file://)
 npm --prefix web run dev                         # dev server (also: preview)
 ```
 

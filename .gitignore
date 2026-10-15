@@ -24,8 +24,8 @@ paper/*.fdb_latexmk
 paper/*.synctex.gz
 paper/*Notes.bib
 paper/sections/*.aux
-paper/main.pdf
 
 # Web SPA
 web/node_modules/
 web/dist/
+web/dist-single/
