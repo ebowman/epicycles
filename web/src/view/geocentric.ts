@@ -203,7 +203,20 @@ export class GeoView {
       this.refFn(t - REF_HALF + (2 * REF_HALF * i) / (REF_PTS - 1), o);
       for (let k = 0; k < 3; k++) { min[k] = Math.min(min[k]!, o[k]!); max[k] = Math.max(max[k]!, o[k]!); }
     }
+    this.includeCircles(t, min, max);
     this.frameBox(min, max);
+  }
+
+  /** Grow a framing box so the epicycle circles drawn at time t (centre +- radius, in-plane) stay in view. */
+  private includeCircles(t: number, min: number[], max: number[]): void {
+    const arms = new Float64Array(3 * (this.chain.length + 1));
+    chainArmsInto(this.chain, t, arms);
+    for (let j = 0; j < this.chain.length; j++) {
+      const r = this.chain[j]!.radius;
+      for (let k = 0; k < 2; k++) {
+        min[k] = Math.min(min[k]!, arms[3 * j + k]! - r); max[k] = Math.max(max[k]!, arms[3 * j + k]! + r);
+      }
+    }
   }
 
   /**

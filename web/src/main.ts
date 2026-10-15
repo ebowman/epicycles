@@ -83,7 +83,7 @@ async function main(): Promise<void> {
   function updateWarn(): void {
     const c = circleCountFor(body, state.N);
     warn.textContent = body !== "naff" && state.N > BIG_N_WARN
-      ? `Warning: N=${state.N} gives ${c} circle terms (4N rotating + 2 static offsets); rendering may be slow.` : "";
+      ? `Warning: N=${state.N} gives ${c} circle terms (4N rotating + 2 static, one combined offset); rendering may be slow.` : "";
   }
 
   async function setBody(id: BodyId): Promise<void> {
@@ -115,7 +115,7 @@ async function main(): Promise<void> {
     const rows = naff && id === "naff" ? studyRows(naff.study) : [];
     const note = id === "naff"
       ? "Perturbed Ceres: N-body integration (Sun, Earth, Jupiter, Saturn) fitted by NAFF into 401 circles; the slider keeps the top K by radius (2K+1 circle terms including the static offset). Reference path = full NAFF reconstruction (all 401 circles), not the N-body truth; see paper for N-body truth error and the table below. Left view shows the unperturbed osculating Kepler ellipse for context."
-      : `${BODY_LABEL[id]}: analytic Bessel/Fourier expansion of the Kepler orbit, computed live. Reference path = exact geocentric Kepler path. Circles: ${circleCountFor(id, state.N)}.`;
+      : `${BODY_LABEL[id]}: analytic Bessel/Fourier expansion of the Kepler orbit, computed live. Reference path = exact geocentric Kepler path. ${circleCountFor(id, state.N)} circle terms.`;
     const win = id === "naff"
       ? `Study window ${jdToDate(NAFF_WINDOW[0])} to ${jdToDate(NAFF_WINDOW[1])} (clock limited to it); interior (middle 80%) ${jdToDate(NAFF_INTERIOR[0])} to ${jdToDate(NAFF_INTERIOR[1])}.` : "";
     info.setMode(note, rows, win);
@@ -224,9 +224,11 @@ async function main(): Promise<void> {
     helio.update(t, rl.width, rl.height);
     geo.update(t, truth, tip, rr.width, rr.height);
     if (pendingFrame !== null) {
-      if (pendingFrame === "opp") { if (!geo.zoomToOpposition(t)) flash("No retrograde loop within +-800 days; framing the whole path."); }
-      else geo.frameReference(t);
-      lastFrame = pendingFrame; userMoved = false;
+      let framed: "ref" | "opp" = pendingFrame;
+      if (pendingFrame === "opp") {
+        if (!geo.zoomToOpposition(t)) { flash("No retrograde loop within +-800 days; framing the whole path."); framed = "ref"; }
+      } else geo.frameReference(t);
+      lastFrame = framed; userMoved = false;
       pendingFrame = null;
     }
     computeError(tip, truth, err);

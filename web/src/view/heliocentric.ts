@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Elements, position, meanMotion } from "../math/kepler";
 import { Label, makeGrid } from "./labels";
+import { fitDistance } from "../sim/geometry";
 
 function orbitLine(el: Elements, color: number): THREE.LineLoop {
   const n = 256, P = (2 * Math.PI) / meanMotion(el);
@@ -42,6 +43,7 @@ export class HelioView {
     this.camera.position.set(0, -3.6, 4.2);
     this.controls = new OrbitControls(this.camera, dom);
     this.controls.enableDamping = true;
+    this.controls.addEventListener("start", () => { this.userMoved = true; });
     const lSun = new Label(host, "Sun");
     this.lEarth = new Label(host, "Earth"); this.lBody = new Label(host, bodyEl.name ?? "Body");
     this.labels = [lSun, this.lEarth, this.lBody];
@@ -57,14 +59,31 @@ export class HelioView {
     this.bodyOrbit = orbitLine(bodyEl, 0xff8a4a);
     this.scene.add(this.bodyOrbit);
     this.lBody.el.textContent = label;
-    const aph = bodyEl.a * (1 + bodyEl.e);
-    const dist = Math.max(3, 4.0 * aph);
+    this.aph = bodyEl.a * (1 + bodyEl.e);
+    this.fit();
+  }
+
+  private aph = 1.7;
+  private fitAspect = 0;
+  private userMoved = false;
+
+  /** Frame the outermost orbit (aphelion circle) with an aspect-aware margin. */
+  private fit(): void {
+    const r = Math.max(1.1, this.aph);
+    const dist = fitDistance(r, r, this.camera.fov, this.fitAspect > 0 ? this.fitAspect : 1);
     this.controls.target.set(0, 0, 0);
     this.camera.position.set(0, -0.65 * dist, 0.76 * dist);
     this.controls.update();
+    this.userMoved = false;
   }
 
   update(t: number, w: number, h: number): void {
+    const asp = h > 0 ? w / h : 1;
+    if (Math.abs(asp - this.fitAspect) > 1e-3) {
+      this.fitAspect = asp;
+      this.camera.aspect = asp; this.camera.updateProjectionMatrix();
+      if (!this.userMoved) this.fit();
+    }
     const pe = position(this.earthEl, t), pb = position(this.bodyEl, t);
     this.earth.position.set(pe[0], pe[1], pe[2]);
     this.body.position.set(pb[0], pb[1], pb[2]);
