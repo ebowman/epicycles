@@ -57,7 +57,9 @@ export function buildInfo(root: HTMLElement): InfoPanel {
   a.textContent = "Geocentric epicycle expansions of Keplerian orbits (PDF)";
   const r = document.createElement("a");
   r.href = "https://github.com/ebowman/epicycles"; r.target = "_blank"; r.rel = "noopener"; r.textContent = "source repository";
-  p.append(a, " | ", r);
+  const d = document.createElement("a");
+  d.href = "https://doi.org/10.5281/zenodo.23383709"; d.target = "_blank"; d.rel = "noopener"; d.textContent = "DOI";
+  p.append(a, " | ", r, " | ", d);
   root.append(p);
   return {
     setCircleCount(c) { if (c !== lastCount) { lastCount = c; countNum.data = String(c); } },

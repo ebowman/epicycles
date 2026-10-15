@@ -8,4 +8,10 @@ authors:
 license: MIT
 repository-code: "https://github.com/ebowman/epicycles"
 url: "https://ebowman.github.io/epicycles/"
-version: 1.0.0
+version: 1.0.2
+date-released: 2026-10-15
+doi: 10.5281/zenodo.23383709
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23383709
+    description: Concept DOI (all versions)
