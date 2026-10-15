@@ -1,0 +1,95 @@
+{
+ "files": [
+  {
+   "file": "mars_N1.json",
+   "body": "Mars",
+   "N": 1,
+   "kind": "analytic",
+   "n_circles": 6
+  },
+  {
+   "file": "mars_N5.json",
+   "body": "Mars",
+   "N": 5,
+   "kind": "analytic",
+   "n_circles": 22
+  },
+  {
+   "file": "mars_N20.json",
+   "body": "Mars",
+   "N": 20,
+   "kind": "analytic",
+   "n_circles": 82
+  },
+  {
+   "file": "mars_N60.json",
+   "body": "Mars",
+   "N": 60,
+   "kind": "analytic",
+   "n_circles": 242
+  },
+  {
+   "file": "ceres_N1.json",
+   "body": "Ceres",
+   "N": 1,
+   "kind": "analytic",
+   "n_circles": 6
+  },
+  {
+   "file": "ceres_N5.json",
+   "body": "Ceres",
+   "N": 5,
+   "kind": "analytic",
+   "n_circles": 22
+  },
+  {
+   "file": "ceres_N20.json",
+   "body": "Ceres",
+   "N": 20,
+   "kind": "analytic",
+   "n_circles": 82
+  },
+  {
+   "file": "ceres_N60.json",
+   "body": "Ceres",
+   "N": 60,
+   "kind": "analytic",
+   "n_circles": 242
+  },
+  {
+   "file": "phaethon_N1.json",
+   "body": "Phaethon",
+   "N": 1,
+   "kind": "analytic",
+   "n_circles": 6
+  },
+  {
+   "file": "phaethon_N5.json",
+   "body": "Phaethon",
+   "N": 5,
+   "kind": "analytic",
+   "n_circles": 22
+  },
+  {
+   "file": "phaethon_N20.json",
+   "body": "Phaethon",
+   "N": 20,
+   "kind": "analytic",
+   "n_circles": 82
+  },
+  {
+   "file": "phaethon_N60.json",
+   "body": "Phaethon",
+   "N": 60,
+   "kind": "analytic",
+   "n_circles": 242
+  },
+  {
+   "file": "perturbed_ceres.json",
+   "body": "Ceres (N-body perturbed)",
+   "N": 200,
+   "kind": "naff",
+   "n_circles": 401
+  }
+ ]
+}

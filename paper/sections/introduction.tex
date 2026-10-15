@@ -1,0 +1,94 @@
+\section{Introduction}
+\label{sec:intro}
+
+Ptolemy's \emph{Almagest} \cite{Toomer1998} predicted planetary positions
+well enough to serve as the working astronomy of the Mediterranean
+and Islamic worlds for well over a thousand years, using nothing but
+uniform circular motions arranged on circles carried by other circles
+\cite{Neugebauer1975,Evans1998}. That a scheme so alien to modern dynamics
+could be so accurate invites a modern explanation. A popular one is that
+epicycles are ``just Fourier series'': a sum of rotating
+vectors can trace any closed curve, so of course it fits the sky
+\cite{Hanson1960,Mathologer2018,3b1b2019,WikiDeferent}. The statement is
+true in spirit but, as usually made, it is loose in three ways. First, the
+motion of a planet seen from Earth involves at least two generally
+incommensurate frequencies, the mean motions of the planet and of the Earth,
+so the geocentric path is not periodic and has no Fourier series in the
+strict sense; the appropriate setting is that of Bohr's almost-periodic
+functions \cite{Bohr1925}. Second, Ptolemy's actual models use eccentrics
+and the equant and are not harmonic expansions
+\cite{Neugebauer1975,Evans1984}. Third, if epicycles can fit anything, the
+representation is empirically empty \cite{Carman2010}, unless the radii and
+rates are fixed by something other than the data.
+
+In this paper we ask a precise version of the question. Given a body on a
+Newtonian orbit, what is the epicycle system, with radii and angular rates
+determined by the orbital elements rather than fitted, that reproduces its
+geocentric position, how many circles does it need for a prescribed accuracy,
+and for which motions does the answer remain valid? The answer has two
+parts. For unperturbed Kepler motion the heliocentric position is an exact
+Fourier series in the mean anomaly with Bessel-function coefficients
+\cite{Dutka1995,Watson1944,MurrayDermott1999}. Subtracting the Earth's
+position gives a sum of two such series, one for the body and one
+for the Earth, which is an epicycle system in which every radius and rate is
+a function of $(a,e,i,\omega,\Omega,M_0)$ of the two orbits. For perturbed
+motion the representation is no longer exact, but near-integrable bounded
+motion is quasi-periodic, and its frequencies and amplitudes can be
+recovered numerically by Laskar's frequency analysis
+\cite{Laskar1990,Laskar1992,Laskar1999}.
+
+\paragraph*{What is, and is not, claimed.}
+The correspondence between epicycles and Fourier or quasi-periodic expansions
+is not new, and we do not claim to have discovered it. It is stated
+explicitly by Gallavotti \cite{Gallavotti2001}; the Bessel expansion of
+Kepler motion goes back to Lagrange and Bessel
+\cite{Dutka1995,Kapteyn1893}; and modern planetary theories are, in
+practice, enormous sums of uniform circular motions
+\cite{Bretagnon1988,Kudryavtsev2016}. Section~\ref{sec:prior} surveys this
+literature. What we found no source to do together, after a search described
+there, is the following, and these are the contributions of this paper.
+\begin{enumerate}
+\item An explicit, closed-form, three-dimensional geocentric epicycle
+expansion of an arbitrary Keplerian body, with Bessel (Kapteyn) amplitudes,
+built from the decomposition of each ellipse into two counter-rotating
+circles, with inclination handled exactly as uniformly rotating vectors in
+tilted planes.
+\item Truncation-error bounds for this expansion, and the resulting number
+of epicycles needed for a given accuracy as a function of eccentricity, for
+both the body and the Earth terms.
+\item A numerical frequency-analysis (NAFF) study. On unperturbed Keplerian
+geocentric trajectories (Mars, Eros), NAFF recovers the analytic Bessel
+epicycle terms (for the ten leading Mars terms over 200 years, with 10-day sampling and 24 lines, relative frequency error
+$2\times10^{-10}$ and relative radius error $9\times10^{-8}$).
+On an N-body-perturbed geocentric Ceres trajectory (Sun, Earth, Jupiter and
+Saturn; 200 years), the NAFF reconstruction error is compared with that of a
+least-squares-fitted six-element Kepler orbit and of a mean-semi-major-axis
+Kepler orbit; NAFF clearly beats the fitted Kepler orbit only for
+$K\gtrsim50$ lines and only in the interior of the window, where edge effects
+dominate the full window.
+\item A precise statement of validity: the representation is accurate for
+bounded quasi-periodic motion, holds only over finite times for chaotic
+motion, and does not apply to unbound orbits.
+\end{enumerate}
+In addition we provide an open-source interactive three-dimensional
+visualization of the resulting epicycle chains as a pedagogical tool. We
+use ``we found no source that\ldots'' deliberately: the claim is about our
+search, not a proof of absence.
+
+\paragraph*{Why this is not curve fitting.}
+In the construction below, every radius and angular rate is determined by the
+orbital elements of the body and of the Earth. Epicycles thus become a
+derived coordinate representation of Newtonian motion rather than a fitting
+model, which is our answer to the objection that an epicycle system
+explains nothing because it can reproduce anything.
+
+\paragraph*{Outline.}
+Section~\ref{sec:history} gives brief historical background and
+Sec.~\ref{sec:prior} reviews prior work and positions our contribution.
+Section~\ref{sec:theory} derives the expansion and its truncation bounds,
+and Sec.~\ref{sec:numerics} describes the numerical methods (Kepler
+propagation, N-body integration, and NAFF). Section~\ref{sec:results} reports
+the results, Sec.~\ref{sec:viz} describes the visualization, and
+Sec.~\ref{sec:discussion} discusses the domain of validity before
+Sec.~\ref{sec:conclusion} concludes. Bessel-function identities used in the
+derivation are collected in the Appendix.

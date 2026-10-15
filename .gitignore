@@ -4,3 +4,28 @@
 *.db
 .beads-credential-key
 .beads/proxieddb/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# LaTeX (paper/)
+paper/*.aux
+paper/*.log
+paper/*.bbl
+paper/*.blg
+paper/*.out
+paper/*.toc
+paper/*.fls
+paper/*.fdb_latexmk
+paper/*.synctex.gz
+paper/*Notes.bib
+paper/sections/*.aux
+
+# Web SPA
+web/node_modules/
+web/dist/
+web/dist-single/

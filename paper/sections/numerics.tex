@@ -1,0 +1,176 @@
+\section{Numerical methods}
+\label{sec:numerics}
+
+All numerical results are produced by a small Python library
+(\texttt{numpy}, \texttt{scipy}) whose modules are named in
+Sec.~\ref{sec:code}. Units are astronomical units (AU) and days; angles are in
+radians; positions are heliocentric or geocentric ecliptic J2000 Cartesian
+vectors.
+
+\subsection{Kepler propagation}
+\label{sec:num-kepler}
+
+A body is specified by osculating elements $(a,e,i,\Omega,\omega,M_0)$ at an
+epoch, with $n=\sqrt{\mu/a^3}$, $\mu=k^2$ and $k=0.01720209895$~rad/day the
+Gaussian gravitational constant. Kepler's equation $M=E-e\sin E$ is solved by
+Newton iteration on $E$ with the Newton step clipped to $|\Delta E|\le1$, the
+mean anomaly first reduced to $[-\pi,\pi)$, and the starting value
+$E_0=M+e\sin M$ for $e\le0.8$ and $E_0=\pm\pi$ for larger $e$. Iteration stops
+when $|\Delta E|<10^{-15}$ (or the residual is below $10^{-15}$); the achieved
+residual $|E-e\sin E-M|$ is $10^{-15}$--$10^{-14}$. The position is then
+$\mathsf R\,(a(\cos E-e),\,as\sin E,\,0)^{\mathsf T}$ with the rotation of
+Sec.~\ref{sec:theory}. This direct solution is the ``truth'' against which
+the series of Prop.~\ref{prop:series} is checked: for $e=0.0167,\,0.1,\,0.5$ and
+$N=60$ the maximum of $|z_N-z_{\rm true}|/a$ over $2\times10^4$ points in $M$ is
+$9.6\times10^{-16}$, $1.0\times10^{-15}$ and $1.06\times10^{-14}$,
+respectively, i.e.\ the coefficient formulas are verified to
+$\sim10^{-14}$.
+
+\subsection{Analytic epicycle expansion}
+\label{sec:num-expansion}
+
+The coefficients $c_k$, $|k|\le N$, are evaluated from the derivative-free
+forms Eqs.~\eqref{eq:ck}--\eqref{eq:cmk} with the Bessel functions
+$J_k(ke)$ and $J_{k+1}(ke)$ from \texttt{scipy.special.jv}. Two details
+matter for small $e$, where the factors $s/e$ and $(1\pm s)/e$ are singular
+term by term (Sec.~\ref{sec:th-kepler}). First, $(1-s)/e$ is evaluated as
+$e/(1+s)$, avoiding the cancellation in $1-s$. Second, $J_k(ke)/e$ is formed
+from \texttt{jv} directly, which is relatively accurate for tiny $e$. The case
+$e=0$ is handled exactly ($c_1=1$, all other $c_k=0$). Each term
+$a c_ke^{\ii kM}$ becomes one circle with radius $a|c_k|$, signed rate $kn$,
+phase $kM(t_{\rm ref})+\arg c_k$ with $\arg c_k\in\{0,\pi\}$, lying in the orbital
+plane spanned by $\mathbf P,\mathbf Q$ with normal $\mathbf N$; the $k=0$ term is
+a fixed arm of length $\tfrac32ae$; terms with exactly zero radius are dropped.
+
+The geocentric chain is the union of the body's circles and the Earth's circles
+with phase shifted by $\pi$ (negation), all referenced to one common epoch,
+following Eq.~\eqref{eq:geo}; no cross terms are formed. The chain is evaluated
+by summing the circles. The truncation bound $\varepsilon_N$ of
+Eq.~\eqref{eq:eps}, and the geocentric bound~\eqref{eq:epsgeo}, are implemented
+directly from the formulas, with the special case $e=0$ giving $0$ for $N\ge1$
+and $a$ for $N=0$. Against the direct Kepler solution the truncated expansion
+with $N=40$ for both body and Earth reproduces the geocentric positions of
+Mars, Eros and Ceres to $6\times10^{-14}$--$8\times10^{-13}$~AU over a
+$-100$ to $+300$~yr span, and the bound~\eqref{eq:eps} was verified to hold
+for all tested $N$ and $e$ up to roundoff ($10^{-13}$).
+
+\subsection{Frequency analysis (NAFF)}
+\label{sec:num-naff}
+
+For a perturbed trajectory the circles are not known analytically and are
+extracted from a uniformly sampled series $\mathbf r(t_n)$, $n=0,\dots,N_s-1$,
+by the numerical analysis of fundamental frequencies of Laskar
+\cite{Laskar1990,Laskar1993}. We use the weighted inner product
+$\langle f,g\rangle=\sum_nw_nf_n\bar g_n$ with the Hann$^p$ window
+$w_n\propto\sin^{2p}\!\big(\pi n/(N_s-1)\big)$ normalised to $\sum_nw_n=1$, and
+the default $p=4$ (Laskar's $\sin^8$ window). The algorithm is as follows.
+\begin{enumerate}
+\item The constant (mean) vector is fitted first and removed.
+\item The strongest peak of the windowed FFT of the current residual, summed
+over the three Cartesian components and zero-padded by a factor of four, is
+located.
+\item The frequency is refined by maximising, with a bounded Brent search within
+$\pm1$ FFT bin of the peak, the power of the projection of the residual on the
+candidate basis $\{\cos\omega t,\sin\omega t\}$ \emph{orthogonalised against all
+previously accepted basis functions} (Gram--Schmidt, implemented by QR/SVD in
+the weighted space). For real data the cosine and sine pair removes the
+interference between the $+\omega$ and $-\omega$ lines. Because Brent's
+tolerance is $\sqrt{\epsilon_{\rm mach}}$ relative to its argument,
+the search is carried out on the offset from the FFT peak in nested windows.
+\item The projection is subtracted, and steps 2--3 are repeated for $K$ terms
+or until the residual falls to $10^{-13}$ of the data norm; candidates whose
+Gram--Schmidt remainder is below $10^{-6}$ of their norm are rejected as
+indistinguishable from earlier ones.
+\item The final amplitudes come from one joint weighted least-squares fit over
+all accepted frequencies and the constant, which spans the same subspace as the
+sequential amplitudes without error accumulation.
+\end{enumerate}
+Each line $\omega>0$ with complex vector amplitude $\mathbf A$ is the ellipse
+$\mathrm{Re}(\mathbf Ae^{\ii\omega t})$ and is converted to a prograde and a
+retrograde circle by the construction of Prop.~\ref{prop:twocircles}.
+
+\paragraph*{Measured accuracy.} Because the window vanishes at the record ends,
+the weighted fit is least accurate there, and we report both full-window and
+interior (middle $80\%$ of the samples) errors below. On a $200$-yr geocentric
+Mars series at $5$-day sampling with $30$ frequencies, the worst relative
+frequency and radius errors over the $10$ largest analytic terms are
+$7\times10^{-11}$ and $10^{-7}$ for $p=4$ (with $10$-day sampling and $24$ frequencies, $2\times10^{-10}$ and $9\times10^{-8}$, the pair quoted in Sec.~\ref{sec:res-naff-kepler}), $2\times10^{-10}$ and
+$5\times10^{-7}$ for $p=3$, and $\sim3\times10^{-9}$ and $5\times10^{-4}$ or
+worse on the weak terms for $p=2$; hence $p=4$. Isolated well-separated lines
+on $100$-period synthetic records are recovered to relative frequency accuracy
+$1.5\times10^{-10}$--$4.6\times10^{-10}$, limited by the flatness of the
+objective near its maximum. On the $100$-yr geocentric series of Eros the
+reconstruction error is $7.6\times10^{-7}$~AU at worst (record ends) and
+$3.1\times10^{-8}$~AU in the interior. Two lines are resolved only if separated
+by more than $\sim2\pi/T$ ($T$ the record length); with the Hann$^p$ window the
+practical limit is roughly $(p+1)$ bins before interference biases the
+frequencies, and closer pairs are returned as one merged, biased line (plus at
+most a poorly conditioned partner) without failure. We do not quote an
+asymptotic convergence exponent for the window.
+
+\subsection{N-body integration}
+\label{sec:num-nbody}
+
+The perturbed test case is a massless asteroid (Ceres) together with the Sun,
+the Earth--Moon barycentre, Jupiter and Saturn, integrated as Newtonian point
+masses in the \emph{barycentric} frame with the Sun as a moving body (so no
+indirect terms are needed); heliocentric output is obtained by subtracting the
+Sun's barycentric position. The mass ratios $M_\odot/m$ are $328900.5614$
+(Earth+Moon), $1047.3486$ (Jupiter system) and $3497.898$ (Saturn system)
+(IAU 2012 / JPL DE430 values). Ceres, with $GM\approx4.7\times10^{-10}\,M_\odot$,
+is treated as a test particle: it feels all massive bodies and exerts no force.
+The equations of motion are integrated with the adaptive eighth-order
+Dormand--Prince method (\texttt{scipy.integrate.solve\_ivp}, \texttt{DOP853})
+with relative tolerance $10^{-12}$ and absolute tolerance $10^{-14}$ (AU,
+AU/day), and dense output sampled at fixed intervals. Initial conditions are
+each body's osculating elements propagated by the Kepler solution of
+Sec.~\ref{sec:num-kepler} to the start epoch (planets: JPL approximate
+positions at J2000 with $\mu=k^2$; Ceres: JPL SBDB osculating elements), with
+the Sun placed so that the barycentre is at rest. Heliocentric velocities come
+from two-body Kepler with $\mu=k^2$ rather than $k^2(1+m)$, which changes the
+osculating mean motions of the planets at the $10^{-3}$ (Jupiter) level; this is
+immaterial because the study compares against the same integration. With all
+planet masses set to zero the integration reproduces the Kepler propagation of
+Sec.~\ref{sec:num-kepler} to better than $10^{-8}$~AU over a 25-yr test span, a check of the
+integrator. The study uses a $200$-yr span at $5$-day sampling ($14\,611$
+samples) starting at the Ceres epoch, JD~2461200.5.
+
+\subsection{Baselines and error metrics}
+\label{sec:num-baselines}
+
+The NAFF reconstruction of the geocentric Ceres series is compared with three
+Kepler baselines, each differenced against the Kepler orbit of the Earth--Moon
+barycentre in the same way as in Eq.~\eqref{eq:geo}.
+\begin{enumerate}
+\item \emph{Osculating Kepler:} the Kepler orbit with the osculating elements at
+the start epoch (the full analytic chain with $N_b=N_\oplus\in\{10,20,40\}$).
+Its error is dominated by the difference between osculating and mean elements
+and must not be read as a ``Kepler versus epicycles'' comparison.
+\item \emph{Mean-$a$ Kepler:} the same elements but with $a$ replaced by the value
+corresponding to the dominant NAFF line of the heliocentric Ceres series,
+$a=(\mu/n_{\rm mean}^2)^{1/3}$.
+\item \emph{Fitted six-element Kepler:} a nonlinear least-squares fit of all six
+elements of Ceres (\texttt{scipy.optimize.least\_squares}, started from the
+mean-$a$ orbit, every fifth sample) to the geocentric series, with the Earth's
+Kepler orbit subtracted. This is the fair Kepler baseline for the comparison.
+\end{enumerate}
+Reconstruction errors are Euclidean distances $d_n=|\mathbf r_n-\hat{\mathbf r}_n|$
+in AU. We report the sup norm $\max_nd_n$ and the RMS $(\langle d_n^2\rangle)^{1/2}$
+over the full window, and the same two quantities over the \emph{interior} 80\%
+of the samples (indices $0.1N_s$ to $0.9N_s$), which excludes the window-edge
+effect described above. For the analytic bound (Table~\ref{tab:nneeded}) the
+error is the true $\sup_M|z-z_N|/a$ on a grid in $M$.
+
+\subsection{Code availability}
+\label{sec:code}
+
+The implementation is in the repository's \texttt{epicycles} package:
+\texttt{kepler.py} (\texttt{Elements}, \texttt{solve\_kepler}, \texttt{position}),
+\texttt{expansion.py} (\texttt{kepler\_fourier}, \texttt{to\_epicycles},
+\texttt{geocentric\_chain}, \texttt{evaluate\_chain}), \texttt{bounds.py}
+(\texttt{rho}, \texttt{tail\_bound}, \texttt{geocentric\_tail\_bound}),
+\texttt{naff.py} (\texttt{naff\_complex}, \texttt{naff\_vector}),
+\texttt{nbody.py} (\texttt{integrate}, \texttt{geocentric}) and
+\texttt{bodies.py} (element sets). The perturbed-Ceres study is
+\texttt{experiments/perturbed\_ceres.py} and the figures are made by
+\texttt{experiments/make\_figures.py}.

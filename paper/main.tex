@@ -1,0 +1,63 @@
+\documentclass[aps,pra,reprint,amsmath,amssymb,superscriptaddress,nofootinbib]{revtex4-2}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{amsthm}
+\usepackage[colorlinks=true,allcolors=blue!50!black]{hyperref}
+\graphicspath{{../figures/}}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.7}
+\setcounter{topnumber}{4}
+\setcounter{bottomnumber}{3}
+\setcounter{totalnumber}{8}
+
+% Notation (see ../theory/derivation.md)
+\newcommand{\rgeo}{\bm{r}_{\mathrm{geo}}}
+\newcommand{\ii}{\mathrm{i}}
+\theoremstyle{plain}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+
+\raggedbottom
+\begin{document}
+
+\title{Ptolemy's epicycles as the geocentric Fourier--Bessel expansion of Newtonian orbits:\\
+an explicit transform, error bounds, and a frequency-analysis demonstration}
+
+\author{E. Bowman}
+\email{ebowman@boboco.ie}
+\affiliation{Independent researcher}
+
+\date{\today}
+
+\begin{abstract}
+The idea that Ptolemaic epicycles are ``just Fourier series'' is old but usually stated loosely. We make it precise for Newtonian motion. A bound Kepler orbit is an exact Fourier series in the mean anomaly with Bessel-function coefficients, and each term is a pair of counter-rotating circles; the geocentric position of a body is the sum of two such families, one for the body and one for the Earth, and is almost-periodic rather than periodic. We give the explicit three-dimensional transform from orbital elements to epicycle radii, planes and rates, with rigorous truncation bounds. Truncations reach $10^{-6}$ to $10^{-9}$ AU with about $6$ to $10$ harmonics per orbit for Mars and Ceres but need hundreds at eccentricity $0.89$; a Ptolemaic-order truncation of Mars reproduces all retrograde loops with longitude errors up to $33^\circ$. Numerical frequency analysis (NAFF) recovers the analytic terms from Keplerian data with relative frequency error $\sim2\times10^{-10}$. For an N-body Ceres trajectory over $200$ years the interior-window error falls monotonically with the number of lines to $5\times10^{-5}$ AU, but the full-window error is edge-limited at a few $10^{-2}$ AU and is comparable to a fitted six-element Kepler orbit. The representation holds for bounded quasi-periodic motion on finite windows and fails for unbound orbits and long-term chaos. We also provide an interactive three-dimensional viewer. The conceptual correspondence is not new; our contribution is the explicit quantitative geocentric construction.
+\end{abstract}
+
+\maketitle
+
+\input{sections/introduction}
+\input{sections/history}
+\input{sections/prior_work}
+\input{sections/theory}
+\input{sections/numerics}
+\input{sections/results}
+\input{sections/visualization}
+\input{sections/discussion}
+\input{sections/conclusion}
+
+\begin{acknowledgments}
+The author thanks the maintainers of the open-source scientific Python and three.js ecosystems used in this work.
+\end{acknowledgments}
+
+\appendix
+\input{sections/appendix_bessel}
+
+\bibliography{refs}
+
+\end{document}

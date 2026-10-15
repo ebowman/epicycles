@@ -1,0 +1,76 @@
+\section{Bessel and Kapteyn identities}
+\label{app:bessel}
+
+We collect the classical identities used in Sec.~\ref{sec:theory}
+\cite{Watson1944,Dutka1995}.
+
+\paragraph*{Generating function and Bessel's integral.}
+For integer $n$,
+\begin{gather}
+e^{\ii x\sin\tau}=\sum_{n\in\mathbb Z}J_n(x)e^{\ii n\tau},\notag\\
+J_n(x)=\frac1{2\pi}\int_0^{2\pi}e^{\ii(n\tau-x\sin\tau)}\,d\tau,
+\label{eq:genfun}
+\end{gather}
+with $J_{-n}(x)=(-1)^nJ_n(x)=J_n(-x)$; $J_n$ is real for real $x$, and the
+integral is unchanged under $\tau\to-\tau$ combined with $n\to-n$ so that the sign
+of the exponent in Lemma~\ref{lem:coef} is immaterial. The cosine and sine forms
+are
+\begin{align}
+J_n'(x)&=\frac1\pi\int_0^\pi\sin\tau\,\sin(n\tau-x\sin\tau)\,d\tau,\notag\\
+\tfrac12\big[J_{n-1}(x)+J_{n+1}(x)\big]&=\frac1\pi\int_0^\pi\cos\tau\cos(n\tau-x\sin\tau)\,d\tau .
+\label{eq:cossin}
+\end{align}
+
+\paragraph*{Recurrences.}
+Differentiating Eq.~\eqref{eq:genfun} in $x$ and in $\tau$ gives
+\begin{align}
+J_{n-1}(x)+J_{n+1}(x)&=\frac{2n}{x}J_n(x),\notag\\
+J_{n-1}(x)-J_{n+1}(x)&=2J_n'(x),
+\label{eq:recur}
+\end{align}
+and, adding and subtracting,
+$J_n'(x)=\frac nxJ_n(x)-J_{n+1}(x)$. At $x=ke$ with $n=k$ the first relation
+reads $J_{k-1}(ke)+J_{k+1}(ke)=\tfrac2eJ_k(ke)$, which converts the first form of
+Eq.~\eqref{eq:ck} into the derivative-free second form, and, with
+$J_k'(ke)=J_k(ke)/e-J_{k+1}(ke)$, gives Eqs.~\eqref{eq:realform}.
+
+\paragraph*{Proof of Lemma~\ref{lem:coef}.}
+Since $e^{-\ii kM}dM=d(e^{-\ii kM})/(-\ii k)$, integration by parts gives
+\begin{multline}
+\frac1{2\pi}\int_0^{2\pi}e^{\ii mE}e^{-\ii kM}dM\\
+=\frac{m}{k}\,\frac1{2\pi}\int_0^{2\pi}e^{-\ii[(k-m)E-ke\sin E]}\,dE
+=\frac mk\,J_{k-m}(ke),
+\end{multline}
+using $M=E-e\sin E$ and Eq.~\eqref{eq:genfun}. The boundary term vanishes
+because $e^{\ii mE}e^{-\ii kM}$ is $2\pi$-periodic in $M$.
+
+\paragraph*{Kapteyn's inequality.}
+For $\nu\ge0$ and $0<\zeta\le1$,
+\begin{equation}
+|J_\nu(\nu\zeta)|\le\Bigg(\frac{\zeta\,e^{\sqrt{1-\zeta^2}}}{1+\sqrt{1-\zeta^2}}\Bigg)^{\nu}
+\label{eq:kapteyn-app}
+\end{equation}
+is due to Kapteyn \cite{Kapteyn1893}; see Watson \cite{Watson1944}, \S8.7 for
+the proof, which is not reproduced here. (We also verified the inequality
+numerically for $1\le k\le399$ and $e\in\{0.0167,0.0934,0.25,0.6,0.89,0.99\}$.)
+It is the large-order, uniform-in-argument form of the Debye asymptotics
+$J_\nu(\nu\,\mathrm{sech}\,\alpha)\sim e^{\nu(\tanh\alpha-\alpha)}/\sqrt{2\pi\nu\tanh\alpha}$
+with $\zeta=\mathrm{sech}\,\alpha$, which shows that the geometric rate
+$\rho^k$ in Eq.~\eqref{eq:kapteyn} is sharp up to a factor of order
+$k^{-1/2}$ for fixed $e$.
+
+\paragraph*{Small-$e$ limits of $c_k$.}
+From the series $J_n(x)=\sum_{m\ge0}\frac{(-1)^m}{m!\,(m+n)!}(x/2)^{2m+n}$ one has
+$J_k(ke)=\frac{(ke/2)^k}{k!}\big[1-\frac{(ke/2)^2}{k+1}+\dots\big]$, so
+$J_k(ke)=O(e^k)$ and $J_{k+1}(ke)=O(e^{k+1})$. With $(1+s)/e=2/e-e/2+\dots$ and
+$(1-s)/e=e/2+\dots$ in Eqs.~\eqref{eq:ck}--\eqref{eq:cmk}:
+\begin{gather}
+c_k=\frac{k^{k-1}}{2^{k-1}\,k!}\,e^{k-1}\big[1+O(e^2)\big],\notag\\
+c_{-k}=O(e^{k+1}),\qquad k\ge1.
+\label{eq:cksmall}
+\end{gather}
+In particular $c_1\to1$, $c_2\sim e/2$, $c_3\sim 3e^2/8$, and
+$c_{-1}\sim e^2/8$, $c_{-2}\sim e^3/24$ (Eq.~\eqref{eq:smalle}), and
+every coefficient is finite as $e\to0$ although individual factors $1/e$ in
+Eq.~\eqref{eq:ck} are not. Retrograde circles are thus smaller than the corresponding
+prograde ones by a factor $O(e^2)$ at small $k$ (e.g.\ $|c_{-1}/c_1|\sim e^2/8$).

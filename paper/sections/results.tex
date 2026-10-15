@@ -1,0 +1,197 @@
+\section{Results}
+\label{sec:results}
+
+All numbers below are produced by \texttt{experiments/make\_figures.py} from the
+code described in Sec.~\ref{sec:numerics}; the planetary elements are
+approximate J2000 mean elements (Sec.~\ref{sec:discussion}), so the results
+test the expansion and its truncation machinery against exact two-body motion
+and against an N-body integration, not against an ephemeris.
+
+\subsection{Coefficient decay}
+\label{sec:res-decay}
+
+Figure~\ref{fig:decay} shows $|c_k|$ and $|c_{-k}|$ of the Kepler Fourier
+series (Prop.~\ref{prop:series}) for $e\in\{0.0934,0.25,0.6,0.89\}$. The
+coefficients decay geometrically at the Kapteyn rate
+$\rho(e)^k$, $\rho=e\,e^{s}/(1+s)$, $s=\sqrt{1-e^2}$, with
+$\rho=0.127$, $0.334$, $0.742$ and $0.964$ respectively. Retrograde terms
+are smaller than prograde terms by roughly $(e/(1+s))^2$ at small $k$.
+The formulas themselves reproduce the exact Kepler solution
+to $10^{-14}$ (in units of $a$) at $e=0.5$ with $60$ harmonics.
+
+\begin{figure}[H]
+\includegraphics[width=\columnwidth]{fig_coeff_decay.pdf}
+\caption{Magnitude of the Kepler-orbit Fourier coefficients $|c_k|$ (open
+markers, $k>0$, prograde) and $|c_{-k}|$ (filled markers, retrograde; marker
+shape distinguishes $e$) in units of $a$, for $e\in\{0.0934,0.25,0.6,0.89\}$
+(Mars, and three illustrative values; $e=0.89$ is Phaethon). Dashed lines:
+the Kapteyn rate $\rho(e)^k$.}
+\label{fig:decay}
+\end{figure}
+
+\subsection{Geocentric convergence}
+\label{sec:res-conv}
+
+Figure~\ref{fig:conv} shows the maximum geocentric error over a $50$-yr window
+(daily samples) of the truncated chain with $N_{\rm body}=N_\oplus=N$,
+against exact Kepler motion, together with the rigorous tail bound
+$\varepsilon_N(\text{body})+\varepsilon_N(\oplus)$. The bound is respected
+everywhere and the error saturates at the double-precision floor,
+$\sim2\times10^{-13}$~AU. The smallest sampled $N$ for which the error is below
+$10^{-6}$~AU is $6$ for Mars, $6$ for Ceres and $240$ for Phaethon, and below
+$10^{-9}$~AU it is $10$, $10$ and $450$. The cost is therefore
+$2N+1=13$ to $21$ circles per orbit ($26$ to $42$ in the geocentric chain) for planet-like eccentricities and of order a thousand for
+$e=0.89$, in line with $N\propto(1-e)^{-3/2}$. For the single-body series
+the observed $N$ for a sup error below $10^{-12}a$ is $12$ for Mars and
+$575$ for $e=0.89$, and the analytic bound overestimates it by at most a
+factor of $\approx1.5$.
+
+\begin{figure}[H]
+\includegraphics[width=\columnwidth]{fig_geo_convergence.pdf}
+\caption{Maximum geocentric position error [AU] over a 50-yr window (daily
+samples from JD 2461200.5) of the truncated epicycle chain with
+$N_{\rm body}=N_\oplus=N$ versus exact Kepler motion, for Mars, Ceres and
+Phaethon (solid), with the rigorous tail bound (dashed). Errors saturate at
+the roundoff floor ($\sim2\times10^{-13}$~AU).}
+\label{fig:conv}
+\end{figure}
+
+\subsection{Ptolemaic-order truncations of Mars}
+\label{sec:res-ptolemy}
+
+Table~\ref{tab:ptolemy} gives the longitude error of truncations of the
+geocentric Mars series in the planar approximation (coplanar J2000 mean
+elements, $60$ yr at $0.5$~d steps, exact two-body reference, no light time or
+aberration). The circular model A, a single deferent and a single epicycle
+($k=+1$ for both Mars and the Earth), reproduces all $28$ retrograde
+loops of the true motion, which is the qualitative Ptolemaic achievement, but
+its longitude error reaches $33.2^\circ$ (RMS $9.7^\circ$), at perihelic
+oppositions where the true distance is $0.37$~AU against $0.52$~AU in the
+circular model. Adding the $k=0$ (eccentric) terms, model B, brings this to
+$9.4^\circ$, and the equant-level model C to $5.05^\circ$. These
+are not literal reproductions of Ptolemy's models, whose eccentric and equant
+agree with the $k=0,1,2$ terms only to first order in $e$
+\cite{Evans1984,Evans1988}; the table says what a harmonic truncation of the
+same order achieves. Truncation by retained set is not monotone at small
+orders (E is slightly worse than D, because the retrograde terms shift errors
+that partly cancelled), and a monotone decrease sets in only for
+$|k|\le5$, where the error is $6\times10^{-4}$ degrees. The $N=5$ chain
+($11+11$ circles) is within $0.001^\circ$ over the window of
+Fig.~\ref{fig:retro}.
+
+\begin{table}[H]
+\caption{Ptolemaic-order truncations of geocentric Mars, planar approximation,
+$60$ years. Longitude error against the exact two-body motion; the true
+number of retrograde intervals is $28$ and every model reproduces it.}
+\label{tab:ptolemy}
+\begin{ruledtabular}
+\begin{tabular}{llrr}
+Model & Retained terms & max ($^\circ$) & RMS ($^\circ$)\\
+\hline
+A & $k=1$, both bodies & $33.2$ & $9.7$\\
+B & $k\in\{0,1\}$, both & $9.40$ & $2.7$\\
+C & Mars $k\in\{0,1,2\}$, Earth $k=1$ & $5.05$ & $0.97$\\
+D & $k\in\{0,1,2\}$, both & $0.557$ & $0.159$\\
+E & $|k|\le2$, both & $0.728$ & $0.182$\\
+F & $|k|\le5$, both & $6\times10^{-4}$ & $1\times10^{-4}$\\
+G & $|k|\le10$, both & $<10^{-4}$ & $<10^{-4}$\\
+\end{tabular}
+\end{ruledtabular}
+\end{table}
+
+\begin{figure}[H]
+\includegraphics[width=\columnwidth]{fig_mars_retrograde.pdf}
+\caption{Geocentric Mars over 2.75 years from 2020-05-31 (two oppositions).
+Top: sky track in ecliptic longitude and latitude. Bottom: unwrapped longitude
+minus its mean motion ($0.524^\circ$/day); grey bands mark retrograde motion
+of the true path. Black: exact Kepler; dashed: Ptolemaic-order truncation
+(Mars $k=+1$ deferent plus Earth $k=+1$ epicycle only, model A of
+Table~\ref{tab:ptolemy}); blue: $N=5$ ($11+11$ circles). The Ptolemaic model
+reproduces the retrograde loops but is displaced by up to $32.8^\circ$ in
+longitude in this window (planar 60-yr sup norm $33.2^\circ$, RMS
+$9.7^\circ$); $N=5$ is within $0.001^\circ$.}
+\label{fig:retro}
+\end{figure}
+
+\begin{figure}[H]
+\includegraphics[width=\columnwidth]{fig_chain_3d.pdf}
+\caption{Geocentric epicycle chain of Eros (inclination $10.8^\circ$) with
+$N=3$ for Eros and for the Earth (14 circles, each drawn in its own orbital
+plane about the preceding arm tip; red: body circles, green: negated Earth
+circles). Blue: tip trail over one synodic period ($845$~d); grey: exact path.
+Maximum tip error $0.01$~AU at this low order.}
+\label{fig:chain3d}
+\end{figure}
+
+Figure~\ref{fig:chain3d} shows that inclination is handled without
+modification: each circle lies in its own orbital plane, and the chain for
+Eros ($i=10.8^\circ$) closes onto the exact path with the stated error.
+
+\subsection{NAFF on Keplerian trajectories}
+\label{sec:res-naff-kepler}
+
+To validate the extraction we apply NAFF (Sec.~\ref{sec:num-naff}, Hann$^4$
+window) to the \emph{exact} Keplerian geocentric Mars series over $200$ yr
+sampled every $10$~d with $K=24$ lines, and match the lines to the analytic
+Bessel terms. For the ten largest analytic terms the worst relative frequency
+error is $2.0\times10^{-10}$ and the worst relative radius error is
+$8.9\times10^{-8}$. On a $100$-yr Eros series ($5$-day sampling, $K=40$, $p=4$) the
+reconstruction error is $7.6\times10^{-7}$~AU at worst over the full window
+(record ends) and $3.1\times10^{-8}$~AU over the interior $80\%$. The data-driven extraction therefore rediscovers the analytic
+epicycles.
+
+\subsection{Perturbed Ceres}
+\label{sec:res-ceres}
+
+For geocentric Ceres integrated with the Sun, Earth, Jupiter and Saturn over
+$200$ yr (5-day sampling), Fig.~\ref{fig:ceres} and Table~\ref{tab:ceres} show
+the error of a NAFF chain with $2K+1$ circles against the N-body truth. The
+error in the interior $80\%$ of the window falls monotonically with $K$, to
+$5.4\times10^{-5}$~AU at $K=200$ (RMS $6.5\times10^{-6}$~AU). The error over
+the full window does not: it lies between $2.2\times10^{-2}$ and
+$4.6\times10^{-2}$~AU for all $K$ and grows with $K$ beyond $K=20$, because the
+window vanishes at the record ends and the extra lines fit the interior
+at the expense of the edges. The honest baseline is a
+six-element least-squares Kepler fit to the same data: $3.8\times10^{-2}$~AU
+over the full window and $2.7\times10^{-2}$~AU in the interior
+(RMS $1.2\times10^{-2}$~AU) and $1.3\times10^{-2}$~AU RMS over the full window, against $5.1\times10^{-2}$~AU for a Kepler orbit
+with the mean semi-major axis. NAFF is comparable to the fitted
+Kepler orbit at $K=5$--$10$ and clearly better only for $K\gtrsim50$ and only in
+the interior ($1.1\times10^{-2}$~AU at $K=50$, $1.6\times10^{-3}$~AU at
+$K=100$); over the full window the $K=200$ chain is
+slightly \emph{worse} in the maximum norm than the fitted Kepler orbit.
+(Osculating elements at the epoch give a much larger error, $0.89$~AU, an
+artifact of osculating versus mean elements that we do not regard as a
+meaningful comparison.)
+
+\begin{table}[H]
+\caption{Perturbed geocentric Ceres, 200 yr: maximum error [AU] of the NAFF
+chain with $K$ lines, and of fitted Kepler baselines.}
+\label{tab:ceres}
+\begin{ruledtabular}
+\begin{tabular}{lrrr}
+ & circles & interior & full\\
+\hline
+NAFF $K=5$ & 11 & $2.8\times10^{-2}$ & $2.8\times10^{-2}$\\
+NAFF $K=20$ & 41 & $2.1\times10^{-2}$ & $2.2\times10^{-2}$\\
+NAFF $K=50$ & 101 & $1.1\times10^{-2}$ & $2.9\times10^{-2}$\\
+NAFF $K=100$ & 201 & $1.6\times10^{-3}$ & $3.8\times10^{-2}$\\
+NAFF $K=200$ & 401 & $5.4\times10^{-5}$ & $4.6\times10^{-2}$\\
+Kepler, 6-element fit & 1 orbit & $2.7\times10^{-2}$ & $3.8\times10^{-2}$\\
+Kepler, mean $a$ & 1 orbit & $5.1\times10^{-2}$ & $5.1\times10^{-2}$\\
+\end{tabular}
+\end{ruledtabular}
+\end{table}
+
+\begin{figure}[H]
+\includegraphics[width=\columnwidth]{fig_perturbed_ceres.pdf}
+\caption{Maximum geocentric position error [AU] of a NAFF-extracted epicycle
+chain ($2K+1$ circles) fitted to an N-body (Sun, Earth, Jupiter, Saturn)
+geocentric Ceres trajectory over 200 years, versus the number of lines $K$:
+interior 80\% of the window (dark blue) and full window (light blue).
+Horizontal lines: fitted Kepler baselines, mean-$a$ Kepler $0.051$~AU and
+6-element least-squares Kepler fit $0.027$~AU (interior), $0.038$~AU (full).
+The osculating-element Kepler orbit (error $0.89$~AU) is omitted as an
+element-offset artifact.}
+\label{fig:ceres}
+\end{figure}

@@ -1,0 +1,119 @@
+\section{Prior work}
+\label{sec:prior}
+
+The idea that epicycles and Fourier-type expansions are the same thing, and
+the individual ingredients of our construction, have a long history. We
+organize it by the ingredient it supplies. The survey is the result of a
+literature search whose limits we state plainly: we cannot exclude that
+relevant older or non-English sources escaped it, and several primary sources
+(Bessel's 1824 memoir, Schiaparelli's 1874 work) were not consulted directly
+and are cited through secondary accounts or not at all.
+
+\paragraph*{Epicycles as a universal representation.}
+Hanson \cite{Hanson1960} argued that epicyclic astronomy is mathematically
+powerful enough to reproduce essentially any observed path, and that its
+decline was not due to weak mathematics. This is the classical statement of
+the ``epicycles can draw anything'' thesis, repeated in popular treatments
+\cite{Mathologer2018,3b1b2019,WikiDeferent} and in a short approximation-theory
+note \cite{Acosta2019}. It is a kinematic statement and is not derived from
+dynamics. Its philosophical consequence, that a system able to fit any
+curve is hard to refute, is discussed by Carman \cite{Carman2010,Carman2015}.
+Manin \cite{Manin2018} and Boccaletti \cite{Boccaletti2001} place the
+continuity of circle-composition ideas in broader historical context.
+
+\paragraph*{Epicycles as quasi-periodic motion.}
+The closest conceptual precedent is Gallavotti \cite{Gallavotti2001}. He
+rewrites a quasi-periodic Fourier series as a deferent carrying nested
+epicycles ordered by amplitude, expands the Kepler ellipse of Mars in powers
+of the eccentricity to obtain a deferent and two epicycles at first order and
+more at higher order, and argues, through Kolmogorov's theorem, that motions
+near integrable ones are again epicyclic, with approximation only over finite
+times in general. Our work does not supersede this; as far as we can tell,
+it is planar, does not write the geocentric difference of two orbits
+explicitly, and does not use Bessel coefficients or treat three dimensions.
+The adjacent mathematical framework is Bohr's theory of almost-periodic
+functions \cite{Bohr1925}, which is where we place the geocentric
+expansion. Scholz \cite{Scholz2022} shows that moving from heliocentric
+circular orbits to an Earth-based observer leads to epicyclic constructions,
+which is our geocentric transform restricted to circular orbits.
+
+\paragraph*{The Bessel--Fourier expansion of Kepler motion.}
+That a Kepler orbit has an exact Fourier expansion in the mean anomaly with
+Bessel-function coefficients is classical. It originates with Lagrange and
+Bessel \cite{Dutka1995,Dutka1997} and its convergence theory is that of
+Kapteyn series \cite{Kapteyn1893,Watson1944}; expansions of the radius and
+anomalies are standard textbook material
+\cite{BrouwerClemence1961,MurrayDermott1999}, surveyed by Colwell
+\cite{Colwell1993}, with recent work on summation and convergence
+\cite{Tautz2011,Borghi2024}. A point worth keeping separate is that the
+Laplace limit $e\approx 0.6627$ governs the power-series solution in $e$, not
+the Fourier series in the mean anomaly, which converges for all $e<1$
+\cite{Dutka1997,Colwell1993}. Our expansion rests on these results;
+what we add is their assembly into a three-dimensional geocentric epicycle
+chain with explicit truncation bounds (Sec.~\ref{sec:theory}).
+
+\paragraph*{Ptolemaic models as truncations of Kepler motion.}
+Evans showed that the equant reproduces Kepler's second law to first order in
+eccentricity \cite{Evans1984} and traced the successive historical
+approximations to Kepler motion for Mars \cite{Evans1988}. Rushkin
+\cite{Rushkin2015} analyzed the accuracy attainable with Ptolemy's
+eccentricity-division rule, finding errors of second order in $e$. Carman and
+Recio \cite{CarmanRecio2019} give the most careful modern quantitative
+comparison of Ptolemaic and Keplerian longitude models, with optimized
+parameters. We do not claim to give the first Ptolemy-versus-Kepler
+comparison. The standard historical sources for the models themselves are
+\cite{Toomer1998,Neugebauer1975,SwerdlowNeugebauer1984,Evans1998}.
+
+\paragraph*{Newtonian dynamics to epicycles.}
+Several works derive epicycles from Newtonian orbits. Peralta, Calles and
+Y\'epez \cite{Peralta2003} integrate Newton's equations and apply an FFT to the
+resulting time series, showing that the Fourier terms generate the deferent
+and epicycles of the Copernican model; this is the most direct precedent for
+the numerical half of our programme, though heliocentric and planar, without
+perturbations, and without the analytic Bessel transform. Sugon, Bragais and
+McNamara \cite{Sugon2008} obtain Copernican epicycles from the linearized
+equation of motion about a circular orbit, to first order and in a
+heliocentric frame. Pucacco \cite{Pucacco2012} expands the Kepler problem in
+a co-rotating frame, obtaining at first order a circle plus a second circle
+at twice the frequency, which he calls an epicyclic expansion, and extends it
+with normal forms to perturbed cases. Paillusson and
+Booth \cite{Paillusson2020} compute geocentric transforms of heliocentric
+trajectories to discuss the underdetermination of world systems, without a
+Fourier decomposition. An unreviewed software repository \cite{epa058}
+reconstructs planar geocentric trajectories from Keplerian elements as sums
+of rotating circles using FFT peaks and least squares, which shows that the
+geocentric numerical idea is in circulation, so our novelty cannot rest on
+the idea alone.
+
+\paragraph*{Frequency analysis and ephemeris series.}
+Operationally, planetary positions are already represented as sums of uniform
+circular motions. VSOP87 \cite{Bretagnon1988} expresses heliocentric
+coordinates as long sums of Poisson terms, and each term with no secular
+factor is a uniform circular motion; a geocentric version is obtained by
+differencing two such theories. Kudryavtsev \cite{Kudryavtsev2016} obtained
+analytical series for DE431 by spectral fitting of a numerical ephemeris.
+Laskar's numerical frequency analysis \cite{Laskar1990,Laskar1992,Laskar1993,%
+Laskar1999} recovers quasi-periodic decompositions with an accuracy far
+better than a plain FFT, with convergence estimates in terms of the data
+length \cite{Laskar2003}, and also marks the limits of the epicycle picture:
+the motion of the solar system is chaotic, and over long times
+frequencies drift so that a fixed set of epicycles ceases to represent the
+solution \cite{Laskar1990,FuLaskar2019}. We use NAFF as our numerical
+tool and reuse these limits in our statement of validity.
+
+\paragraph*{Position of the present work.}
+To summarize, concept and framing are due to Gallavotti
+\cite{Gallavotti2001}; the Bessel expansion to Lagrange, Bessel and
+Kapteyn; the FFT demonstration to Peralta et al.\
+\cite{Peralta2003}; first-order analytic derivations to Sugon et al.\
+\cite{Sugon2008} and Pucacco \cite{Pucacco2012}; and the practical
+representation to VSOP87 and Laskar-type frequency analysis. We found no
+source that combines (i) the explicit closed-form three-dimensional
+geocentric expansion with ellipse-as-two-circles structure, (ii) rigorous
+truncation bounds, (iii) a frequency-analysis study that checks NAFF against the analytic
+expansion on unperturbed geocentric trajectories and, for a perturbed
+(N-body) geocentric Ceres trajectory, compares its reconstruction error with
+fitted-Kepler baselines, with the limits of that comparison stated, and (iv) a precise statement of the domain of validity. That
+combination, together with the visualization of
+Sec.~\ref{sec:viz}, is what this paper contributes, as an expository
+synthesis with new quantitative results rather than as a new discovery.
